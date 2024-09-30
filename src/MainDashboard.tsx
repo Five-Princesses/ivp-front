@@ -1,27 +1,50 @@
 import Paper from '@mui/material/Paper';
 import { Box, Typography } from '@mui/material';
+import { useState } from 'react';
+import Arbitrum from './pages/Arbitrum';
+import Optimism from './pages/Optimism';
 
 interface IDummydata {
-  Scaling: string[];
-  DeFi: string[];
-  Bridges: string[];
+  [category: string]: { name: string; path: string }[];
 }
 
 export default function MainDashboard() {
+  const [currentPath, setCurrentPath] = useState<string>('/');
   const dummyData: IDummydata = {
-    Scaling: ['OP Mainnet', 'Arbitrum', 'Base', 'Blast', 'Mantle', 'Scroll'],
-    DeFi: ['Compound', 'Curve', 'Lido', 'AAVE', 'EigenLayer', 'ether.fi'],
+    Scaling: [
+      { name: 'OP Mainnet', path: '/scaling/op-mainnet' },
+      { name: 'Arbitrum', path: '/scaling/arbitrum' },
+      { name: 'Base', path: '/scaling/base' },
+      { name: 'Blast', path: '/scaling/blast' },
+      { name: 'Mantle', path: '/scaling/mantle' },
+      { name: 'Scroll', path: '/scaling/scroll' },
+    ],
+    DeFi: [
+      { name: 'Compound', path: '/defi/compound' },
+      { name: 'Curve', path: '/defi/curve' },
+      { name: 'Lido', path: '/defi/lido' },
+      { name: 'AAVE', path: '/defi/aave' },
+      { name: 'EigenLayer', path: '/defi/eigenlayer' },
+      { name: 'ether.fi', path: '/defi/etherfi' },
+    ],
     Bridges: [
-      'LayerZero v2 OFTs',
-      'Ronin V3',
-      'Portal (Wormhole)',
-      'Multichain',
-      'Stargate',
-      'Connext',
+      { name: 'LayerZero v2 OFTs', path: '/bridges/layerzero' },
+      { name: 'Ronin V3', path: '/bridges/ronin' },
+      { name: 'Portal (Wormhole)', path: '/bridges/portal' },
+      { name: 'Multichain', path: '/bridges/multichain' },
+      { name: 'Stargate', path: '/bridges/stargate' },
+      { name: 'Connext', path: '/bridges/connext' },
     ],
   };
 
-  const renderCategory = (category: string, items: string[]) => (
+  const handleItemClick = (path: string) => {
+    setCurrentPath(path);
+  };
+
+  const renderCategory = (
+    category: string,
+    items: { name: string; path: string }[]
+  ) => (
     <Paper
       sx={{
         width: '95%',
@@ -45,9 +68,10 @@ export default function MainDashboard() {
           justifyContent: 'center',
         }}
       >
-        {items.map(item => (
+        {items.map(({ name, path }) => (
           <Box
-            key={item}
+            key={name}
+            onClick={() => handleItemClick(path)}
             sx={{
               width: '225px',
               height: '225px',
@@ -60,22 +84,43 @@ export default function MainDashboard() {
               border: '1px solid gray',
             }}
           >
-            {item}
+            {name}
           </Box>
         ))}
       </Box>
     </Paper>
   );
 
-  return (
-    <Box
-      sx={{
-        width: '100%',
-      }}
-    >
-      {Object.entries(dummyData).map(([category, items]) =>
-        renderCategory(category, items)
-      )}
-    </Box>
-  );
+  // 경로에 따라 다른 컴포넌트 렌더링
+  const renderPageContent = () => {
+    switch (currentPath) {
+      case '/dashboard':
+        return (
+          <Box>
+            {Object.entries(dummyData).map(([category, items]) =>
+              renderCategory(category, items)
+            )}
+          </Box>
+        );
+      case '/scaling/arbitrum':
+        return (
+          <Arbitrum
+            setCurrentPath={setCurrentPath}
+            item={{ title: '', src: '' }}
+          />
+        );
+      case '/scaling/op-mainnet':
+        return <Optimism setCurrentPath={setCurrentPath} />;
+      default:
+        return (
+          <Box>
+            {Object.entries(dummyData).map(([category, items]) =>
+              renderCategory(category, items)
+            )}
+          </Box>
+        );
+    }
+  };
+
+  return <Box sx={{ width: '100%' }}>{renderPageContent()}</Box>;
 }
