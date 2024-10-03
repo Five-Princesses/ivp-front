@@ -2,6 +2,7 @@ import { Box, Skeleton, Tab, Tabs } from '@mui/material';
 import React from 'react';
 import ArbitrumLogo from '../../public/assets/arbitrum-arb-logo.png';
 import PageHeader from '../components/PageHeader';
+import SecurityCouncil from '../components/arbComponents/SecurityCouncil';
 
 function Arbitrum({
   setCurrentPath,
@@ -65,6 +66,7 @@ function Arbitrum({
           <Tab value="three" label="Item Three" />
         </Tabs>
       </Box>
+      <SecurityCouncil />
       <Box sx={{ pt: 3 }}>
         {item ? (
           <img
