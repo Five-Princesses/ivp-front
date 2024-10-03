@@ -326,109 +326,155 @@ export default function SecurityCouncil() {
   return (
     <Box
       sx={{
-        pt: 3,
-        border: '2px solid black', // 박스 기본 테두리 색상
-        '&:hover': {
-          borderColor: 'red', // 마우스가 올라갔을 때 박스 테두리 빨간색
-        },
-        borderRadius: 2, // 둥근 테두리 모서리
-        padding: 2, // 내부 여백
-        mt: 4, // 박스 위쪽 여백
-        mb: 4, // 박스 아래쪽 여백
+        display: 'flex', // Flexbox 사용
+        justifyContent: 'center', // 가로 가운데 정렬
       }}
     >
-      {/* 제목 */}
-      <Typography variant="h4" component="h2" gutterBottom>
-        Security Council
-      </Typography>
-
-      {/* 내용 박스 */}
       <Box
         sx={{
-          border: '1px solid black', // 내용 부분 기본 테두리 색상
-          borderRadius: 1, // 내용 박스 테두리 모서리
-          padding: 2, // 내용 내부 여백
-          mt: 2, // 제목과의 간격
-        }}
-      >
-        <Typography variant="body1" gutterBottom>
-          Explore the details of L1, L2, and L2 Propose Security Councils.
-        </Typography>
-      </Box>
-
-      {/* 클릭 시 펼쳐지는 스크롤 가능한 컴포넌트 */}
-      <Accordion
-        sx={{
-          mt: 2,
-          border: '1px solid black', // 아코디언 테두리 추가
-          borderRadius: 1, // 둥근 테두리 모서리
-          '&:before': {
-            display: 'none', // 아코디언 기본 하이라이트 제거
+          width: '90%',
+          pt: 3,
+          border: '2px solid black', // 박스 기본 테두리 색상
+          '&:hover': {
+            borderColor: 'red', // 마우스가 올라갔을 때 박스 테두리 빨간색
           },
+          borderRadius: 2, // 둥근 테두리 모서리
+          padding: 2, // 내부 여백
+          mt: 4, // 박스 위쪽 여백
+          mb: 4, // 박스 아래쪽 여백
         }}
-        onChange={handleAccordionChange}
       >
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls="panel1a-content"
-          id="panel1a-header"
+        {/* 제목 */}
+        <Typography variant="h4" component="h2" gutterBottom>
+          Security Council
+        </Typography>
+
+        {/* 소제목 */}
+        <Typography variant="h5" component="h3" gutterBottom>
+          Summary
+        </Typography>
+        {/* 내용 박스 */}
+        <Box
+          sx={{
+            border: '1px solid black', // 내용 부분 기본 테두리 색상
+            borderRadius: 1, // 내용 박스 테두리 모서리
+            padding: 2, // 내용 내부 여백
+            mt: 2, // 제목과의 간격
+          }}
         >
-          <Typography>More Details</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          {loading ? (
-            <Typography>Loading...</Typography>
-          ) : (
-            <>
-              {renderTable()}
+          <Typography variant="body1" gutterBottom>
+            The Security Council can perform upgrades when it secures 9 out of
+            12 signatures from its members. Regular upgrades will incur a 12-day
+            and 8-hour delay. However, in the case of a security threat, an
+            emergency upgrade can be executed immediately without delay.
+            Additionally, during the timelock period, the Security Council also
+            holds the authority to cancel the upgrade.{' '}
+          </Typography>
+        </Box>
 
-              {/* 모든 멤버가 동일한지 확인 */}
-              <Box
-                sx={{ mt: 2, p: 2, border: '1px solid black', borderRadius: 1 }}
-              >
-                <Typography variant="body1">
-                  All Members Are Same:{' '}
-                  <Box
-                    component="span"
-                    sx={{
-                      display: 'inline-block',
-                      bgcolor: areAllMembersSame() ? 'blue' : 'red',
-                      color: 'white',
-                      padding: '2px 8px',
-                      borderRadius: 1,
-                    }}
-                  >
-                    {areAllMembersSame() ? 'True' : 'False'}
-                  </Box>
-                </Typography>
-              </Box>
+        {/* 클릭 시 펼쳐지는 스크롤 가능한 컴포넌트 */}
+        <Accordion
+          sx={{
+            mt: 2,
+            mb: 4,
+            border: '1px solid black', // 아코디언 테두리 추가
+            borderRadius: 1, // 둥근 테두리 모서리
+            '&:before': {
+              display: 'none', // 아코디언 기본 하이라이트 제거
+            },
+          }}
+          onChange={handleAccordionChange}
+        >
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            aria-controls="panel1a-content"
+            id="panel1a-header"
+          >
+            <Typography>More Details</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            {loading ? (
+              <Typography>Loading...</Typography>
+            ) : (
+              <>
+                {renderTable()}
 
-              {/* 모든 Threshold 값이 동일한지 확인 */}
-              <Box
-                sx={{ mt: 2, p: 2, border: '1px solid black', borderRadius: 1 }}
-              >
-                <Typography variant="body1">
-                  All Thresholds Are Same:{' '}
-                  <Box
-                    component="span"
-                    sx={{
-                      display: 'inline-block',
-                      bgcolor: areAllThresholdsSame() ? 'blue' : 'red',
-                      color: 'white',
-                      padding: '2px 8px',
-                      borderRadius: 1,
-                    }}
-                  >
-                    {areAllThresholdsSame()
-                      ? `True (${l1Threshold?.toString()})`
-                      : 'False'}
-                  </Box>
-                </Typography>
-              </Box>
-            </>
-          )}
-        </AccordionDetails>
-      </Accordion>
+                {/* 모든 멤버가 동일한지 확인 */}
+                <Box
+                  sx={{
+                    mt: 2,
+                    p: 2,
+                    border: '1px solid black',
+                    borderRadius: 1,
+                  }}
+                >
+                  <Typography variant="body1">
+                    All Members Are Same:{' '}
+                    <Box
+                      component="span"
+                      sx={{
+                        display: 'inline-block',
+                        bgcolor: areAllMembersSame() ? 'blue' : 'red',
+                        color: 'white',
+                        padding: '2px 8px',
+                        borderRadius: 1,
+                      }}
+                    >
+                      {areAllMembersSame() ? 'True' : 'False'}
+                    </Box>
+                  </Typography>
+                </Box>
+
+                {/* 모든 Threshold 값이 동일한지 확인 */}
+                <Box
+                  sx={{
+                    mt: 2,
+                    p: 2,
+                    border: '1px solid black',
+                    borderRadius: 1,
+                  }}
+                >
+                  <Typography variant="body1">
+                    All Thresholds Are Same:{' '}
+                    <Box
+                      component="span"
+                      sx={{
+                        display: 'inline-block',
+                        bgcolor: areAllThresholdsSame() ? 'blue' : 'red',
+                        color: 'white',
+                        padding: '2px 8px',
+                        borderRadius: 1,
+                      }}
+                    >
+                      {areAllThresholdsSame()
+                        ? `True (${l1Threshold?.toString()})`
+                        : 'False'}
+                    </Box>
+                  </Typography>
+                </Box>
+              </>
+            )}
+          </AccordionDetails>
+        </Accordion>
+        {/* 소제목 */}
+        <Typography variant="h5" component="h3" gutterBottom>
+          Upgrade Flow
+        </Typography>
+
+        {/* 내용 박스 */}
+        <Box
+          sx={{
+            border: '1px solid black', // 내용 부분 기본 테두리 색상
+            borderRadius: 1, // 내용 박스 테두리 모서리
+            padding: 2, // 내용 내부 여백
+            mt: 2, // 제목과의 간격
+          }}
+        >
+          <Typography variant="body1" gutterBottom>
+            Upgrade Complete
+          </Typography>
+        </Box>
+      </Box>
     </Box>
   );
 }

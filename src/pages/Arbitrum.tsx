@@ -3,6 +3,7 @@ import React from 'react';
 import ArbitrumLogo from '../../public/assets/arbitrum-arb-logo.png';
 import PageHeader from '../components/PageHeader';
 import SecurityCouncil from '../components/arbComponents/SecurityCouncil';
+import BoxFrame from '../components/BoxFrame';
 
 function Arbitrum({
   setCurrentPath,
@@ -67,7 +68,11 @@ function Arbitrum({
         </Tabs>
       </Box>
       <SecurityCouncil />
-      <Box sx={{ pt: 3 }}>
+      <BoxFrame />
+      <BoxFrame />
+
+      {/* primitive Box Ex */}
+      {/* <Box sx={{ pt: 3 }}>
         {item ? (
           <img
             style={{
@@ -81,37 +86,7 @@ function Arbitrum({
         ) : (
           <Skeleton variant="rectangular" width="100%" height={400} />
         )}
-      </Box>
-      <Box sx={{ pt: 3 }}>
-        {item ? (
-          <img
-            style={{
-              width: '100%',
-              height: 400,
-              marginTop: 16,
-            }}
-            alt={item.title}
-            src={item.src}
-          />
-        ) : (
-          <Skeleton variant="rectangular" width="100%" height={400} />
-        )}
-      </Box>
-      <Box sx={{ pt: 3 }}>
-        {item ? (
-          <img
-            style={{
-              width: '100%',
-              height: 400,
-              marginTop: 16,
-            }}
-            alt={item.title}
-            src={item.src}
-          />
-        ) : (
-          <Skeleton variant="rectangular" width="100%" height={400} />
-        )}
-      </Box>
+      </Box> */}
     </Box>
   );
 }
