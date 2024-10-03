@@ -142,10 +142,14 @@ export default function SecurityCouncil() {
   };
 
   const areAllMembersSame = () => {
-    const allMembers = [l1Members, l2Members, l2ProposeMembers];
+    const sortedMembers = [
+      l1Members.slice(),
+      l2Members.slice(),
+      l2ProposeMembers.slice(),
+    ];
 
-    // 각 배열이 모두 같을 때 True, 다를 때 False 반환
-    return allMembers.every(
+    // 정렬된 복사본을 사용하여 비교 (원본 데이터는 변경하지 않음)
+    return sortedMembers.every(
       (members, _, array) =>
         JSON.stringify(members.sort()) === JSON.stringify(array[0].sort())
     );
