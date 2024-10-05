@@ -3,7 +3,7 @@ import React from 'react';
 import ArbitrumLogo from '../../public/assets/arbitrum-arb-logo.png';
 import PageHeader from '../components/PageHeader';
 import SecurityCouncil from '../components/arbComponents/SecurityCouncil';
-import BoxFrame from '../components/BoxFrame';
+import BoxFrameEx from '../components/BoxFrameEx';
 
 function Arbitrum({
   setCurrentPath,
@@ -68,8 +68,8 @@ function Arbitrum({
         </Tabs>
       </Box>
       <SecurityCouncil />
-      <BoxFrame />
-      <BoxFrame />
+      <BoxFrameEx />
+      <BoxFrameEx />
 
       {/* primitive Box Ex */}
       {/* <Box sx={{ pt: 3 }}>
