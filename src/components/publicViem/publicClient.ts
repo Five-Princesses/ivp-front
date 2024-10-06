@@ -6,7 +6,7 @@ export const mainnetPublicClient = createPublicClient({
     multicall: true,
   },
   chain: mainnet,
-  transport: http(),
+  transport: http('https://ethereum.blockpi.network/v1/rpc/public'),
 });
 
 export const sepoliaPublicClient = createPublicClient({
