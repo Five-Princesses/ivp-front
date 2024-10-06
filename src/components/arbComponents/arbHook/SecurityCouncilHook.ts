@@ -1,5 +1,8 @@
 import { ReadContractErrorType } from 'viem';
-import { mainnetPublicClient, arbitrumPublicClient } from './publicClient';
+import {
+  mainnetPublicClient,
+  arbitrumPublicClient,
+} from '../../publicViem/publicClient';
 
 // ===================================Address==========================================
 // ====================================================================================

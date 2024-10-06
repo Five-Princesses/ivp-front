@@ -1,9 +1,10 @@
 import { Box, Skeleton, Tab, Tabs } from '@mui/material';
 import React from 'react';
 import ArbitrumLogo from '../../public/assets/arbitrum-arb-logo.png';
-import PageHeader from '../components/PageHeader';
+import PageHeader from '../components/common/PageHeader';
 import SecurityCouncil from '../components/arbComponents/SecurityCouncil';
-import BoxFrameEx from '../components/BoxFrameEx';
+import BoxFrameEx from '../components/common/BoxFrameEx';
+import BlobGraph from '../components/arbComponents/BlobGraph';
 
 function Arbitrum({
   setCurrentPath,
@@ -67,6 +68,7 @@ function Arbitrum({
           <Tab value="three" label="Item Three" />
         </Tabs>
       </Box>
+      <BlobGraph />
       <SecurityCouncil />
       <BoxFrameEx />
       <BoxFrameEx />
