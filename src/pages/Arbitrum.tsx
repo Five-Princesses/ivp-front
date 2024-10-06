@@ -1,95 +1,129 @@
-import { Box, Skeleton, Tab, Tabs } from '@mui/material';
-import React from 'react';
+import { Box, Grid2, styled, Tab, Tabs } from '@mui/material';
+import React, { useRef, useEffect } from 'react';
 import ArbitrumLogo from '../../public/assets/arbitrum-arb-logo.png';
 import PageHeader from '../components/common/PageHeader';
 import SecurityCouncil from '../components/arbComponents/SecurityCouncil';
-import BoxFrameEx from '../components/common/BoxFrameEx';
 import BlobGraph from '../components/arbComponents/BlobGraph';
+import ArbitrumStatus from '../components/arbComponents/arbitrumstatus/ArbitrumStatus';
 
 function Arbitrum({
   setCurrentPath,
-  item,
 }: {
   setCurrentPath: (path: string) => void;
-  item: { title: string; src: string } | null;
 }) {
-  const [value, setValue] = React.useState('one');
+  const [value, setValue] = React.useState('status');
+  const headerRef = useRef<HTMLDivElement>(null);
+  const securityCouncilRef = useRef<HTMLDivElement>(null);
+  const statusRef = useRef<HTMLDivElement>(null);
+  const blobGraphRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observerOptions = { root: null, rootMargin: '0px', threshold: 0.9 };
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          setValue(entry.target.id);
+        }
+      });
+    }, observerOptions);
+
+    if (securityCouncilRef.current)
+      observer.observe(securityCouncilRef.current);
+    if (statusRef.current) observer.observe(statusRef.current);
+    if (blobGraphRef.current) observer.observe(blobGraphRef.current);
+
+    return () => {
+      if (securityCouncilRef.current)
+        observer.unobserve(securityCouncilRef.current);
+      if (statusRef.current) observer.unobserve(statusRef.current);
+      if (blobGraphRef.current) observer.unobserve(blobGraphRef.current);
+    };
+  }, [value]);
 
   const handleChange = (_event: React.SyntheticEvent, newValue: string) => {
     setValue(newValue);
+
+    const headerHeight = headerRef.current
+      ? headerRef.current.clientHeight + 45
+      : 0;
+
+    if (newValue === 'status' && statusRef.current) {
+      window.scrollTo({
+        top: statusRef.current.offsetTop - headerHeight,
+        behavior: 'smooth',
+      });
+    }
+    if (newValue === 'gas' && blobGraphRef.current) {
+      window.scrollTo({
+        top: blobGraphRef.current.offsetTop - headerHeight,
+        behavior: 'smooth',
+      });
+    }
+    if (newValue === 'securitycouncil' && securityCouncilRef.current) {
+      window.scrollTo({
+        top: securityCouncilRef.current.offsetTop - headerHeight,
+        behavior: 'smooth',
+      });
+    }
   };
 
+  const Item = styled(Box)(({ theme }) => ({
+    backgroundColor: '#fff',
+    ...theme.typography.body2,
+    padding: theme.spacing(1),
+    color: theme.palette.text.secondary,
+    ...theme.applyStyles('dark', {
+      backgroundColor: '#1A2027',
+    }),
+  }));
+
   return (
-    <Box
+    <Grid2
       sx={{
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
         padding: '16px',
+        overflow: 'visible',
       }}
     >
-      <PageHeader
-        setCurrentPath={setCurrentPath}
-        logo={ArbitrumLogo}
-        name="Arbitrum"
-      />
-      <Box>
-        {item ? (
-          <img
-            style={{
-              width: '100%',
-              height: 118,
-            }}
-            alt={item.title}
-            src={item.src}
-          />
-        ) : (
-          <Skeleton variant="rectangular" width="100%" height={118} />
-        )}
-      </Box>
-      <Box
-        sx={{
-          position: 'sticky',
-          top: 115,
-          zIndex: 10,
-          backgroundColor: 'white',
-          boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-        }}
-      >
-        <Tabs
-          value={value}
-          onChange={handleChange}
-          textColor="secondary"
-          indicatorColor="secondary"
-          aria-label="secondary tabs example"
-        >
-          <Tab value="one" label="Item One" />
-          <Tab value="two" label="Item Two" />
-          <Tab value="three" label="Item Three" />
+      <Item ref={headerRef} sx={{ position: 'sticky', top: 65, zIndex: 10 }}>
+        <PageHeader
+          setCurrentPath={setCurrentPath}
+          logo={ArbitrumLogo}
+          name="Arbitrum"
+        />
+        {/* <Box id="this">
+          {item ? (
+            <Box
+              style={{
+                width: '100%',
+                height: 118,
+              }}
+            />
+          ) : (
+            <Skeleton variant="rectangular" width="100%" height={118} />
+          )}
+        </Box> */}
+        <Tabs value={value} onChange={handleChange}>
+          <Tab value="status" label="Arbitrum Status" />
+          <Tab value="gas" label="Gas Used" />
+          <Tab value="securitycouncil" label="Security Council" />
         </Tabs>
-      </Box>
-      <BlobGraph />
-      <SecurityCouncil />
-      <BoxFrameEx />
-      <BoxFrameEx />
-
-      {/* primitive Box Ex */}
-      {/* <Box sx={{ pt: 3 }}>
-        {item ? (
-          <img
-            style={{
-              width: '100%',
-              height: 400,
-              marginTop: 16,
-            }}
-            alt={item.title}
-            src={item.src}
-          />
-        ) : (
-          <Skeleton variant="rectangular" width="100%" height={400} />
-        )}
-      </Box> */}
-    </Box>
+      </Item>
+      <Item>
+        <Box id="status" ref={statusRef}>
+          <ArbitrumStatus />
+        </Box>
+        <Box id="gas" ref={blobGraphRef}>
+          <BlobGraph />
+        </Box>
+        <Box id="securitycouncil" ref={securityCouncilRef}>
+          <SecurityCouncil />
+        </Box>
+      </Item>
+    </Grid2>
   );
 }
 

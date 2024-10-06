@@ -13,6 +13,7 @@ import { AppProvider } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import type { Navigation, Router } from '@toolpad/core';
 
+import { Container } from '@mui/material';
 import MainDashboard from './MainDashboard';
 
 const NAVIGATION: Navigation = [
@@ -129,7 +130,9 @@ export default function DashboardLayoutSlots() {
       branding={{ title: 'Five Princesses' }}
     >
       <DashboardLayout slots={{ toolbarActions: Search }}>
-        <PageContent pathname={pathname} />
+        <Container sx={{ py: 2 }}>
+          <PageContent pathname={pathname} />
+        </Container>
       </DashboardLayout>
     </AppProvider>
   );
