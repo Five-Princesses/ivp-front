@@ -1,5 +1,5 @@
 import { Box } from '@mui/material';
-import PageHeader from '../components/PageHeader';
+import PageHeader from '../components/common/PageHeader';
 import OptimizmLogo from '../../public/assets/optimism-ethereum-op-logo.png';
 
 function Optimism({

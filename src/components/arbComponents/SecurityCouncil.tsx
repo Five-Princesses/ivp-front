@@ -23,10 +23,10 @@ import {
   L2_SECURITY_COUNCIL_ADDRESS,
   L2_SECURITY_COUNCIL_PROPOSE_ADDRESS,
 } from './arbHook/SecurityCouncilHook';
-import BoxFrame from '../BoxFrame';
-import SubtitleBox from '../SubtitleBox';
-import ContentBox from '../ContentBox';
-import CustomAccordion from '../CustomAccordion';
+import BoxFrame from '../common/BoxFrame';
+import SubtitleBox from '../common/SubtitleBox';
+import ContentBox from '../common/ContentBox';
+import CustomAccordion from '../common/CustomAccordion';
 
 // ETH 변환 함수
 const formatBalance = (balance: bigint) => Number(balance) / 10 ** 18; // .toFixed(4);
