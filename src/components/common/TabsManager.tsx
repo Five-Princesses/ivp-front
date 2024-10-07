@@ -1,26 +1,25 @@
 import { Tab, Tabs } from '@mui/material';
-import React from 'react';
+import React, { memo, useCallback, useState } from 'react';
 
 interface TabsManagerProps {
-  ref: React.RefObject<HTMLDivElement>; // 탭을 관리하는 컴포넌트의 ref
-  value: string; // 탭의 현재 상태를 나타내는 값
+  onTabChange: (newValue: string) => void; // 부모에게 상태 전달 함수
 }
 
-function TabsManager({ ref, value }: TabsManagerProps) {
-  //   const handleChange = useCallback(
-  //     (newValue: string, _event: React.SyntheticEvent) => {
-  //       // 탭 변경 시 상태 업데이트
-  //       console.log(newValue);
-  //     },
-  //     [] // Add an empty dependency array if there are no dependencies
-  //   );
+// TabsManager 내부에서 상태 관리
+function TabsManager({ onTabChange }: TabsManagerProps) {
+  const [value, setValue] = useState<string>('status');
+
+  const handleChange = useCallback(
+    (_event: React.SyntheticEvent, newValue: string) => {
+      setValue(newValue);
+      onTabChange(newValue); // 부모에게 상태 변경 알림 전달
+    },
+    [onTabChange]
+  );
 
   return (
-    <div ref={ref}>
-      <Tabs
-        value={value}
-        // onChange={(_event, newValue) => handleChange(newValue, _event)}
-      >
+    <div>
+      <Tabs value={value} onChange={handleChange}>
         <Tab value="status" label="Arbitrum Status" />
         <Tab value="gas" label="Gas Used" />
         <Tab value="securitycouncil" label="Security Council" />
@@ -29,4 +28,4 @@ function TabsManager({ ref, value }: TabsManagerProps) {
   );
 }
 
-export default TabsManager;
+export default memo(TabsManager);

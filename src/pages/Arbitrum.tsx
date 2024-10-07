@@ -1,5 +1,5 @@
 import { Box, Grid2, styled } from '@mui/material';
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useCallback } from 'react';
 import ArbitrumLogo from '../../public/assets/arbitrum-arb-logo.png';
 import PageHeader from '../components/common/PageHeader';
 import SecurityCouncil from '../components/arbComponents/SecurityCouncil';
@@ -7,80 +7,38 @@ import BlobGraph from '../components/arbComponents/BlobGraph';
 import ArbitrumStatus from '../components/arbComponents/arbitrumstatus/ArbitrumStatus';
 import TabsManager from '../components/common/TabsManager';
 
-function Arbitrum({
+export default function Arbitrum({
   setCurrentPath,
 }: {
   setCurrentPath: (path: string) => void;
 }) {
-  const [activeSection, setActiveSection] = useState('status');
   const headerRef = useRef<HTMLDivElement>(null);
   const securityCouncilRef = useRef<HTMLDivElement>(null);
   const statusRef = useRef<HTMLDivElement>(null);
   const blobGraphRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const headerHeight = headerRef.current
-        ? headerRef.current.clientHeight + 45
-        : 0;
-      const scrollPosition = window.scrollY + headerHeight;
+  // 탭 변경 시 스크롤 이동 처리
+  const handleTabChange = useCallback((newValue: string) => {
+    const headerHeight = headerRef.current
+      ? headerRef.current.clientHeight + 45
+      : 0;
 
-      // 각 ref가 `null`인지 확인 후 상태 업데이트
-      if (
-        statusRef.current &&
-        scrollPosition >= statusRef.current.offsetTop &&
-        blobGraphRef.current &&
-        scrollPosition < blobGraphRef.current.offsetTop
-      ) {
-        setActiveSection('status');
-      } else if (
-        blobGraphRef.current &&
-        scrollPosition >= blobGraphRef.current.offsetTop &&
-        securityCouncilRef.current &&
-        scrollPosition < securityCouncilRef.current.offsetTop
-      ) {
-        setActiveSection('gas');
-      } else if (
-        securityCouncilRef.current &&
-        scrollPosition >= securityCouncilRef.current.offsetTop
-      ) {
-        setActiveSection('securitycouncil');
-      }
+    const sectionMap = {
+      status: statusRef.current,
+      gas: blobGraphRef.current,
+      securitycouncil: securityCouncilRef.current,
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    const targetSection =
+      sectionMap[newValue as 'status' | 'gas' | 'securitycouncil'];
+
+    if (targetSection) {
+      window.scrollTo({
+        top: targetSection.offsetTop - headerHeight,
+        behavior: 'smooth',
+      });
+    }
   }, []);
-
-  // const handleTabChange = useCallback(
-  //   (newValue: string) => {
-  //     setActiveSection(newValue);
-
-  //     const headerHeight = headerRef.current
-  //       ? headerRef.current.clientHeight + 45
-  //       : 0;
-
-  //     if (newValue === 'status' && statusRef.current) {
-  //       window.scrollTo({
-  //         top: statusRef.current.offsetTop - headerHeight,
-  //         behavior: 'smooth',
-  //       });
-  //     }
-  //     if (newValue === 'gas' && blobGraphRef.current) {
-  //       window.scrollTo({
-  //         top: blobGraphRef.current.offsetTop - headerHeight,
-  //         behavior: 'smooth',
-  //       });
-  //     }
-  //     if (newValue === 'securitycouncil' && securityCouncilRef.current) {
-  //       window.scrollTo({
-  //         top: securityCouncilRef.current.offsetTop - headerHeight,
-  //         behavior: 'smooth',
-  //       });
-  //     }
-  //   },
-  //   [headerRef, statusRef, blobGraphRef, securityCouncilRef]
-  // );
 
   const Item = styled(Box)(({ theme }) => ({
     backgroundColor: '#fff',
@@ -109,24 +67,21 @@ function Arbitrum({
           logo={ArbitrumLogo}
           name="Arbitrum"
         />
-        <TabsManager ref={headerRef} value={activeSection} />
+        <TabsManager onTabChange={handleTabChange} />
       </Item>
 
       {/* 본문 섹션 */}
       <Item>
-        <Box id="status">
+        <Box id="status" ref={statusRef}>
           <ArbitrumStatus />
         </Box>
-        <Box id="gas">
-          {/* <BlobGraph call={fetch} /> */}
+        <Box id="gas" ref={blobGraphRef}>
           <BlobGraph />
         </Box>
-        <Box id="securitycouncil">
+        <Box id="securitycouncil" ref={securityCouncilRef}>
           <SecurityCouncil />
         </Box>
       </Item>
     </Grid2>
   );
 }
-
-export default Arbitrum;
