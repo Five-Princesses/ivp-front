@@ -14,6 +14,8 @@ import {
   fetchBlobDataFromTransaction,
   getBatchSubmitterLatestTxHash,
 } from './arbHook/BlobGraphHook'; // 함수 import 추가
+import SubtitleBox from '../common/SubtitleBox';
+import { getBalanceOnL1 } from './arbHook/SecurityCouncilHook';
 
 // Chart.js 요소 등록
 Chart.register(CategoryScale, LinearScale, BarElement, Tooltip);
@@ -24,6 +26,21 @@ export default function BlobGraph() {
   const [error, setError] = useState<string | null>(null);
   const [blobGasUsed, setBlobGasUsed] = useState<number | null>(null);
   const [calldataGasUsed, setCalldataGasUsed] = useState<number | null>(null);
+  const [balance, setBalance] = useState<bigint | null>(null); // 잔액 상태를 bigint로 유지
+
+  const batchSubmitterAddress = '0xC1b634853Cb333D3aD8663715b08f41A3Aec47cc';
+
+  // 이더리움 잔액을 가져오는 함수
+  const fetchBalance = async () => {
+    try {
+      const balanceResult = await getBalanceOnL1({
+        addr: batchSubmitterAddress,
+      });
+      setBalance(balanceResult); // 잔액을 wei 단위로 설정
+    } catch (e) {
+      setBalance(null);
+    }
+  };
 
   // 트랜잭션 해시를 직접 가져와 데이터를 받아오는 함수
   const fetchTransactionData = async () => {
@@ -58,6 +75,7 @@ export default function BlobGraph() {
 
   useEffect(() => {
     fetchTransactionData();
+    fetchBalance();
 
     const interval = setInterval(fetchTransactionData, 3 * 60 * 1000); // 3분마다 데이터 갱신
 
@@ -158,6 +176,31 @@ export default function BlobGraph() {
 
   return (
     <BoxFrame title="Blob Vs Calldata">
+      <SubtitleBox subtitle="Batch Submitter">
+        <ContentBox
+          content={
+            <>
+              <Typography variant="body1">
+                Batch Submitter:{' '}
+                <Link
+                  href={`https://etherscan.io/address/${batchSubmitterAddress}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  underline="hover"
+                >
+                  {batchSubmitterAddress}
+                </Link>
+              </Typography>
+              <Typography variant="body1" mt={1}>
+                Batch Submitter Balance:{' '}
+                {balance !== null ? `${balance.toString()} wei` : 'Loading...'}
+              </Typography>
+            </>
+          }
+        />
+      </SubtitleBox>
+
+      <ContentBox content="The batch submitter is used to post L2 transactions to L1 in batches. Arbitrum One generally uses blobs to save on gas costs, but if using blob data increases gas expenses, it automatically converts to calldata." />
       <ContentBox content={renderContent()} />
     </BoxFrame>
   );
