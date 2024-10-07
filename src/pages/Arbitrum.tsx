@@ -1,95 +1,131 @@
-import { Box, Skeleton, Tab, Tabs } from '@mui/material';
-import React from 'react';
+import { Box, Grid2, styled } from '@mui/material';
+import { useRef, useEffect, useState } from 'react';
 import ArbitrumLogo from '../../public/assets/arbitrum-arb-logo.png';
 import PageHeader from '../components/common/PageHeader';
 import SecurityCouncil from '../components/arbComponents/SecurityCouncil';
-import BoxFrameEx from '../components/common/BoxFrameEx';
 import BlobGraph from '../components/arbComponents/BlobGraph';
+import ArbitrumStatus from '../components/arbComponents/arbitrumstatus/ArbitrumStatus';
+import TabsManager from '../components/common/TabsManager';
 
 function Arbitrum({
   setCurrentPath,
-  item,
 }: {
   setCurrentPath: (path: string) => void;
-  item: { title: string; src: string } | null;
 }) {
-  const [value, setValue] = React.useState('one');
+  const [activeSection, setActiveSection] = useState('status');
+  const headerRef = useRef<HTMLDivElement>(null);
+  const securityCouncilRef = useRef<HTMLDivElement>(null);
+  const statusRef = useRef<HTMLDivElement>(null);
+  const blobGraphRef = useRef<HTMLDivElement>(null);
 
-  const handleChange = (_event: React.SyntheticEvent, newValue: string) => {
-    setValue(newValue);
-  };
+  useEffect(() => {
+    const handleScroll = () => {
+      const headerHeight = headerRef.current
+        ? headerRef.current.clientHeight + 45
+        : 0;
+      const scrollPosition = window.scrollY + headerHeight;
+
+      // 각 ref가 `null`인지 확인 후 상태 업데이트
+      if (
+        statusRef.current &&
+        scrollPosition >= statusRef.current.offsetTop &&
+        blobGraphRef.current &&
+        scrollPosition < blobGraphRef.current.offsetTop
+      ) {
+        setActiveSection('status');
+      } else if (
+        blobGraphRef.current &&
+        scrollPosition >= blobGraphRef.current.offsetTop &&
+        securityCouncilRef.current &&
+        scrollPosition < securityCouncilRef.current.offsetTop
+      ) {
+        setActiveSection('gas');
+      } else if (
+        securityCouncilRef.current &&
+        scrollPosition >= securityCouncilRef.current.offsetTop
+      ) {
+        setActiveSection('securitycouncil');
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // const handleTabChange = useCallback(
+  //   (newValue: string) => {
+  //     setActiveSection(newValue);
+
+  //     const headerHeight = headerRef.current
+  //       ? headerRef.current.clientHeight + 45
+  //       : 0;
+
+  //     if (newValue === 'status' && statusRef.current) {
+  //       window.scrollTo({
+  //         top: statusRef.current.offsetTop - headerHeight,
+  //         behavior: 'smooth',
+  //       });
+  //     }
+  //     if (newValue === 'gas' && blobGraphRef.current) {
+  //       window.scrollTo({
+  //         top: blobGraphRef.current.offsetTop - headerHeight,
+  //         behavior: 'smooth',
+  //       });
+  //     }
+  //     if (newValue === 'securitycouncil' && securityCouncilRef.current) {
+  //       window.scrollTo({
+  //         top: securityCouncilRef.current.offsetTop - headerHeight,
+  //         behavior: 'smooth',
+  //       });
+  //     }
+  //   },
+  //   [headerRef, statusRef, blobGraphRef, securityCouncilRef]
+  // );
+
+  const Item = styled(Box)(({ theme }) => ({
+    backgroundColor: '#fff',
+    ...theme.typography.body2,
+    padding: theme.spacing(1),
+    color: theme.palette.text.secondary,
+    ...theme.applyStyles('dark', {
+      backgroundColor: '#1A2027',
+    }),
+  }));
 
   return (
-    <Box
+    <Grid2
       sx={{
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
         padding: '16px',
+        overflow: 'visible',
       }}
     >
-      <PageHeader
-        setCurrentPath={setCurrentPath}
-        logo={ArbitrumLogo}
-        name="Arbitrum"
-      />
-      <Box>
-        {item ? (
-          <img
-            style={{
-              width: '100%',
-              height: 118,
-            }}
-            alt={item.title}
-            src={item.src}
-          />
-        ) : (
-          <Skeleton variant="rectangular" width="100%" height={118} />
-        )}
-      </Box>
-      <Box
-        sx={{
-          position: 'sticky',
-          top: 115,
-          zIndex: 10,
-          backgroundColor: 'white',
-          boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-        }}
-      >
-        <Tabs
-          value={value}
-          onChange={handleChange}
-          textColor="secondary"
-          indicatorColor="secondary"
-          aria-label="secondary tabs example"
-        >
-          <Tab value="one" label="Item One" />
-          <Tab value="two" label="Item Two" />
-          <Tab value="three" label="Item Three" />
-        </Tabs>
-      </Box>
-      <BlobGraph />
-      <SecurityCouncil />
-      <BoxFrameEx />
-      <BoxFrameEx />
+      {/* 헤더 섹션 */}
+      <Item ref={headerRef} sx={{ position: 'sticky', top: 65, zIndex: 10 }}>
+        <PageHeader
+          setCurrentPath={setCurrentPath}
+          logo={ArbitrumLogo}
+          name="Arbitrum"
+        />
+        <TabsManager ref={headerRef} value={activeSection} />
+      </Item>
 
-      {/* primitive Box Ex */}
-      {/* <Box sx={{ pt: 3 }}>
-        {item ? (
-          <img
-            style={{
-              width: '100%',
-              height: 400,
-              marginTop: 16,
-            }}
-            alt={item.title}
-            src={item.src}
-          />
-        ) : (
-          <Skeleton variant="rectangular" width="100%" height={400} />
-        )}
-      </Box> */}
-    </Box>
+      {/* 본문 섹션 */}
+      <Item>
+        <Box id="status">
+          <ArbitrumStatus />
+        </Box>
+        <Box id="gas">
+          {/* <BlobGraph call={fetch} /> */}
+          <BlobGraph />
+        </Box>
+        <Box id="securitycouncil">
+          <SecurityCouncil />
+        </Box>
+      </Item>
+    </Grid2>
   );
 }
 
