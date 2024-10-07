@@ -67,7 +67,6 @@ export default function BlobGraph() {
       }
     } catch (err) {
       setError('Failed to fetch transaction data');
-      console.error('Error fetching transaction data:', err);
     } finally {
       setLoading(false); // 데이터 로드 완료 후 로딩 해제
     }
