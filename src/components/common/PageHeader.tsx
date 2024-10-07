@@ -13,13 +13,12 @@ export default function PageHeader({
   return (
     <Box
       sx={{
-        position: 'sticky',
         top: 65,
         display: 'flex',
         alignItems: 'center',
         mb: 4,
-        zIndex: 11,
-        backgroundColor: 'white',
+        zIndex: 10,
+        marginTop: '10px',
       }}
     >
       <IconButton
@@ -46,7 +45,6 @@ export default function PageHeader({
         sx={{
           fontWeight: 'bold',
           fontSize: '32px',
-          color: '#333',
         }}
       >
         {name}
