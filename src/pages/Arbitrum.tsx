@@ -1,72 +1,86 @@
-import { Box, Grid2, styled, Tab, Tabs } from '@mui/material';
-import React, { useRef, useEffect } from 'react';
+import { Box, Grid2, styled } from '@mui/material';
+import { useRef, useEffect, useState } from 'react';
 import ArbitrumLogo from '../../public/assets/arbitrum-arb-logo.png';
 import PageHeader from '../components/common/PageHeader';
 import SecurityCouncil from '../components/arbComponents/SecurityCouncil';
 import BlobGraph from '../components/arbComponents/BlobGraph';
 import ArbitrumStatus from '../components/arbComponents/arbitrumstatus/ArbitrumStatus';
+import TabsManager from '../components/common/TabsManager';
 
 function Arbitrum({
   setCurrentPath,
 }: {
   setCurrentPath: (path: string) => void;
 }) {
-  const [value, setValue] = React.useState('status');
+  const [activeSection, setActiveSection] = useState('status');
   const headerRef = useRef<HTMLDivElement>(null);
   const securityCouncilRef = useRef<HTMLDivElement>(null);
   const statusRef = useRef<HTMLDivElement>(null);
   const blobGraphRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const observerOptions = { root: null, rootMargin: '0px', threshold: 0.9 };
+    const handleScroll = () => {
+      const headerHeight = headerRef.current
+        ? headerRef.current.clientHeight + 45
+        : 0;
+      const scrollPosition = window.scrollY + headerHeight;
 
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          setValue(entry.target.id);
-        }
-      });
-    }, observerOptions);
-
-    if (securityCouncilRef.current)
-      observer.observe(securityCouncilRef.current);
-    if (statusRef.current) observer.observe(statusRef.current);
-    if (blobGraphRef.current) observer.observe(blobGraphRef.current);
-
-    return () => {
-      if (securityCouncilRef.current)
-        observer.unobserve(securityCouncilRef.current);
-      if (statusRef.current) observer.unobserve(statusRef.current);
-      if (blobGraphRef.current) observer.unobserve(blobGraphRef.current);
+      // 각 ref가 `null`인지 확인 후 상태 업데이트
+      if (
+        statusRef.current &&
+        scrollPosition >= statusRef.current.offsetTop &&
+        blobGraphRef.current &&
+        scrollPosition < blobGraphRef.current.offsetTop
+      ) {
+        setActiveSection('status');
+      } else if (
+        blobGraphRef.current &&
+        scrollPosition >= blobGraphRef.current.offsetTop &&
+        securityCouncilRef.current &&
+        scrollPosition < securityCouncilRef.current.offsetTop
+      ) {
+        setActiveSection('gas');
+      } else if (
+        securityCouncilRef.current &&
+        scrollPosition >= securityCouncilRef.current.offsetTop
+      ) {
+        setActiveSection('securitycouncil');
+      }
     };
-  }, [value]);
 
-  const handleChange = (_event: React.SyntheticEvent, newValue: string) => {
-    setValue(newValue);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
-    const headerHeight = headerRef.current
-      ? headerRef.current.clientHeight + 45
-      : 0;
+  // const handleTabChange = useCallback(
+  //   (newValue: string) => {
+  //     setActiveSection(newValue);
 
-    if (newValue === 'status' && statusRef.current) {
-      window.scrollTo({
-        top: statusRef.current.offsetTop - headerHeight,
-        behavior: 'smooth',
-      });
-    }
-    if (newValue === 'gas' && blobGraphRef.current) {
-      window.scrollTo({
-        top: blobGraphRef.current.offsetTop - headerHeight,
-        behavior: 'smooth',
-      });
-    }
-    if (newValue === 'securitycouncil' && securityCouncilRef.current) {
-      window.scrollTo({
-        top: securityCouncilRef.current.offsetTop - headerHeight,
-        behavior: 'smooth',
-      });
-    }
-  };
+  //     const headerHeight = headerRef.current
+  //       ? headerRef.current.clientHeight + 45
+  //       : 0;
+
+  //     if (newValue === 'status' && statusRef.current) {
+  //       window.scrollTo({
+  //         top: statusRef.current.offsetTop - headerHeight,
+  //         behavior: 'smooth',
+  //       });
+  //     }
+  //     if (newValue === 'gas' && blobGraphRef.current) {
+  //       window.scrollTo({
+  //         top: blobGraphRef.current.offsetTop - headerHeight,
+  //         behavior: 'smooth',
+  //       });
+  //     }
+  //     if (newValue === 'securitycouncil' && securityCouncilRef.current) {
+  //       window.scrollTo({
+  //         top: securityCouncilRef.current.offsetTop - headerHeight,
+  //         behavior: 'smooth',
+  //       });
+  //     }
+  //   },
+  //   [headerRef, statusRef, blobGraphRef, securityCouncilRef]
+  // );
 
   const Item = styled(Box)(({ theme }) => ({
     backgroundColor: '#fff',
@@ -88,38 +102,26 @@ function Arbitrum({
         overflow: 'visible',
       }}
     >
+      {/* 헤더 섹션 */}
       <Item ref={headerRef} sx={{ position: 'sticky', top: 65, zIndex: 10 }}>
         <PageHeader
           setCurrentPath={setCurrentPath}
           logo={ArbitrumLogo}
           name="Arbitrum"
         />
-        {/* <Box id="this">
-          {item ? (
-            <Box
-              style={{
-                width: '100%',
-                height: 118,
-              }}
-            />
-          ) : (
-            <Skeleton variant="rectangular" width="100%" height={118} />
-          )}
-        </Box> */}
-        <Tabs value={value} onChange={handleChange}>
-          <Tab value="status" label="Arbitrum Status" />
-          <Tab value="gas" label="Gas Used" />
-          <Tab value="securitycouncil" label="Security Council" />
-        </Tabs>
+        <TabsManager ref={headerRef} value={activeSection} />
       </Item>
+
+      {/* 본문 섹션 */}
       <Item>
-        <Box id="status" ref={statusRef}>
+        <Box id="status">
           <ArbitrumStatus />
         </Box>
-        <Box id="gas" ref={blobGraphRef}>
+        <Box id="gas">
+          {/* <BlobGraph call={fetch} /> */}
           <BlobGraph />
         </Box>
-        <Box id="securitycouncil" ref={securityCouncilRef}>
+        <Box id="securitycouncil">
           <SecurityCouncil />
         </Box>
       </Item>

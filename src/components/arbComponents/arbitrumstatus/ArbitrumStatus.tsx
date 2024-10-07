@@ -1,8 +1,8 @@
 import { Box, Grid, Typography } from '@mui/material';
-import BoxFrame from '../../BoxFrame';
-import SubtitleBox from '../../SubtitleBox';
-import ContentBox from '../../ContentBox';
-import CustomAccordion from '../../CustomAccordion';
+import BoxFrame from '../../common/BoxFrame';
+import SubtitleBox from '../../common/SubtitleBox';
+import ContentBox from '../../common/ContentBox';
+import CustomAccordion from '../../common/CustomAccordion';
 import { ComponentStatus } from './types';
 import StatusCard from './StatusCard';
 
@@ -21,7 +21,12 @@ const getStatusColor = (status: ComponentStatus) => {
   }
 };
 
-function ArbitrumSequencerStatus() {
+function ArbitrumStatus() {
+  // const [item, setItem] = React.useState('status');
+
+  // useEffect(() => {
+  //   getArbitrumStatus();
+  // }, []);
   const dummyData = {
     components: [
       {
@@ -56,9 +61,16 @@ function ArbitrumSequencerStatus() {
       },
     ],
   };
+
+  // const getArbitrumStatus = () => {
+  //   const status = axios.get('https://status.arbitrum.io/v2/components.json');
+
+  //   console.log(status);
+  // };
+
   return (
-    <BoxFrame title="Arbitrum Status">
-      <SubtitleBox subtitle="Arbitrum Health">
+    <BoxFrame title="Status">
+      <SubtitleBox subtitle="Health">
         <ContentBox content="This dashboard shows the current status of the Arbitrum sequencer and its components. Each component is monitored for operational health, and any issues are highlighted here for further inspection." />
       </SubtitleBox>
 
@@ -75,7 +87,6 @@ function ArbitrumSequencerStatus() {
         ))}
       </Grid>
 
-      {/* 각 컴포넌트의 상태를 보여주는 Accordion 섹션 */}
       <Box sx={{ marginTop: '24px' }}>
         {dummyData.components.map(component => (
           <CustomAccordion
@@ -105,4 +116,4 @@ function ArbitrumSequencerStatus() {
   );
 }
 
-export default ArbitrumSequencerStatus;
+export default ArbitrumStatus;

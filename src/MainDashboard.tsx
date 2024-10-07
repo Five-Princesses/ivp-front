@@ -103,12 +103,7 @@ export default function MainDashboard() {
           </Box>
         );
       case '/scaling/arbitrum':
-        return (
-          <Arbitrum
-            setCurrentPath={setCurrentPath}
-            item={{ title: '', src: '' }}
-          />
-        );
+        return <Arbitrum setCurrentPath={setCurrentPath} />;
       case '/scaling/op-mainnet':
         return <Optimism setCurrentPath={setCurrentPath} />;
       default:
