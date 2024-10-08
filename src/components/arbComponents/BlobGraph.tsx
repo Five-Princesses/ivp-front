@@ -17,6 +17,9 @@ import {
 import SubtitleBox from '../common/SubtitleBox';
 import { getBalanceOnL1 } from './arbHook/SecurityCouncilHook';
 
+// ETH 변환 함수
+const formatBalance = (balance: bigint) => Number(balance) / 10 ** 18; // .toFixed(4);
+
 // Chart.js 요소 등록
 Chart.register(CategoryScale, LinearScale, BarElement, Tooltip);
 
@@ -192,7 +195,9 @@ export default function BlobGraph() {
               </Typography>
               <Typography variant="body1" mt={1}>
                 Batch Submitter Balance:{' '}
-                {balance !== null ? `${balance.toString()} wei` : 'Loading...'}
+                {balance !== null
+                  ? `${formatBalance(balance)} ETH`
+                  : 'Loading...'}
               </Typography>
             </>
           }
