@@ -1,5 +1,5 @@
 import { Box, Grid2, styled } from '@mui/material';
-import { useRef, useCallback } from 'react';
+import { useRef } from 'react';
 import ArbitrumLogo from '../../public/assets/arbitrum-arb-logo.png';
 import PageHeader from '../components/common/PageHeader';
 import SecurityCouncil from '../components/arbComponents/SecurityCouncil';
@@ -16,29 +16,6 @@ export default function Arbitrum({
   const securityCouncilRef = useRef<HTMLDivElement>(null);
   const statusRef = useRef<HTMLDivElement>(null);
   const blobGraphRef = useRef<HTMLDivElement>(null);
-
-  // 탭 변경 시 스크롤 이동 처리
-  const handleTabChange = useCallback((newValue: string) => {
-    const headerHeight = headerRef.current
-      ? headerRef.current.clientHeight + 45
-      : 0;
-
-    const sectionMap = {
-      status: statusRef.current,
-      gas: blobGraphRef.current,
-      securitycouncil: securityCouncilRef.current,
-    };
-
-    const targetSection =
-      sectionMap[newValue as 'status' | 'gas' | 'securitycouncil'];
-
-    if (targetSection) {
-      window.scrollTo({
-        top: targetSection.offsetTop - headerHeight,
-        behavior: 'smooth',
-      });
-    }
-  }, []);
 
   const Item = styled(Box)(({ theme }) => ({
     backgroundColor: '#fff',
@@ -67,7 +44,14 @@ export default function Arbitrum({
           logo={ArbitrumLogo}
           name="Arbitrum"
         />
-        <TabsManager onTabChange={handleTabChange} />
+        {/* 각 섹션의 ref를 TabsManager에 전달 */}
+        <TabsManager
+          sectionsRef={{
+            status: statusRef,
+            gas: blobGraphRef,
+            securitycouncil: securityCouncilRef,
+          }}
+        />
       </Item>
 
       {/* 본문 섹션 */}
