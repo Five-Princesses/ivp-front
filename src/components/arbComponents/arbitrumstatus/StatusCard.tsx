@@ -28,7 +28,6 @@ function StatusCard({
         return 'gray';
     }
   }
-
   return (
     <Box
       sx={{

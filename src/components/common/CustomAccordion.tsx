@@ -9,7 +9,7 @@ import {
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 interface CustomAccordionProps {
-  title: string;
+  title: string | JSX.Element; // title은 string 또는 JSX Element
   content: string | JSX.Element; // content는 string 또는 JSX Element
   onChange: (event: React.SyntheticEvent, isExpanded: boolean) => void; // onChange 핸들러 추가
   children?: ReactNode; // 추가적인 children 요소

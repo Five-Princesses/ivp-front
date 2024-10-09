@@ -37,12 +37,12 @@ function TabsManager({ sectionsRef }: TabsManagerProps) {
       ];
 
       // 각 섹션의 위치와 스크롤 위치를 출력하여 정확한 값을 확인
-      sections.forEach(section => {
-        const sectionTop = section.ref.current
-          ? section.ref.current.getBoundingClientRect().top + window.scrollY
-          : 0;
-        console.log(`Section ${section.name} top:`, sectionTop);
-      });
+      //   sections.forEach(section => {
+      //     const sectionTop = section.ref.current
+      //       ? section.ref.current.getBoundingClientRect().top + window.scrollY
+      //       : 0;
+      //     console.log(`Section ${section.name} top:`, sectionTop);
+      //   });
 
       // 스크롤 위치와 섹션 위치 비교하여 탭 상태 업데이트
       for (let i = 0; i < sections.length; i += 1) {
@@ -65,7 +65,7 @@ function TabsManager({ sectionsRef }: TabsManagerProps) {
           scrollPosition < nextSectionTop
         ) {
           setValue(currentSection.name);
-          console.log(`Current active section: ${currentSection.name}`);
+          //   console.log(`Current active section: ${currentSection.name}`);
           break;
         }
       }
