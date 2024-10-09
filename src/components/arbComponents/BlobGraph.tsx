@@ -183,7 +183,7 @@ export default function BlobGraph() {
               <Typography variant="body1">
                 Batch Submitter:{' '}
                 <Link
-                  href={`https://etherscan.io/address/${batchSubmitterAddress}`}
+                  href={`c/address/${batchSubmitterAddress}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   underline="hover"
