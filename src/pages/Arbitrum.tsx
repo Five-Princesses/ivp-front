@@ -47,6 +47,7 @@ export default function Arbitrum({
         {/* 각 섹션의 ref를 TabsManager에 전달 */}
         <TabsManager
           sectionsRef={{
+            header: headerRef,
             status: statusRef,
             gas: blobGraphRef,
             securitycouncil: securityCouncilRef,

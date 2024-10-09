@@ -3,6 +3,7 @@ import { Tab, Tabs } from '@mui/material';
 
 interface TabsManagerProps {
   sectionsRef: {
+    header: React.RefObject<HTMLDivElement>;
     status: React.RefObject<HTMLDivElement>;
     gas: React.RefObject<HTMLDivElement>;
     securitycouncil: React.RefObject<HTMLDivElement>;
@@ -14,13 +15,16 @@ function TabsManager({ sectionsRef }: TabsManagerProps) {
   const tabsRef = useRef<HTMLDivElement>(null);
   const [headerHeight, setHeaderHeight] = useState<number>(0);
 
+  // 전체 헤더 높이(즉, PageHeader + TabsManager 높이) 계산
   useEffect(() => {
-    if (tabsRef.current) {
-      const tabsHeight = tabsRef.current.clientHeight;
-      setHeaderHeight(tabsHeight - 48);
+    if (sectionsRef.header.current) {
+      // headerRef의 전체 높이 측정
+      const totalHeaderHeight = sectionsRef.header.current.clientHeight + 50;
+      setHeaderHeight(totalHeaderHeight);
     }
-  }, []);
+  }, [sectionsRef.header]); // headerRef의 초기화가 완료된 후에만 실행
 
+  // 스크롤 위치를 감지하여 탭 상태 업데이트
   useEffect(() => {
     const handleScroll = () => {
       // 정확한 스크롤 위치 보정
@@ -40,16 +44,20 @@ function TabsManager({ sectionsRef }: TabsManagerProps) {
         console.log(`Section ${section.name} top:`, sectionTop);
       });
 
+      // 스크롤 위치와 섹션 위치 비교하여 탭 상태 업데이트
       for (let i = 0; i < sections.length; i += 1) {
         const currentSection = sections[i];
         const nextSection = sections[i + 1];
 
         const currentSectionTop = currentSection.ref.current
           ? currentSection.ref.current.getBoundingClientRect().top +
-            window.scrollY
+            window.scrollY -
+            headerHeight // headerHeight 반영
           : 0;
         const nextSectionTop = nextSection?.ref.current
-          ? nextSection.ref.current.getBoundingClientRect().top + window.scrollY
+          ? nextSection.ref.current.getBoundingClientRect().top +
+            window.scrollY -
+            headerHeight // headerHeight 반영
           : Number.MAX_VALUE;
 
         if (
@@ -67,6 +75,7 @@ function TabsManager({ sectionsRef }: TabsManagerProps) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [sectionsRef, headerHeight]);
 
+  // 탭 변경 시 스크롤 이동 처리
   const handleChange = useCallback(
     (_event: React.SyntheticEvent, newValue: string) => {
       setValue(newValue);
@@ -77,12 +86,12 @@ function TabsManager({ sectionsRef }: TabsManagerProps) {
         const targetPosition =
           targetSection.current.getBoundingClientRect().top + window.scrollY;
         window.scrollTo({
-          top: targetPosition - headerHeight,
+          top: targetPosition - headerHeight, // 정확한 위치 보정
           behavior: 'smooth',
         });
       }
     },
-    [sectionsRef, headerHeight]
+    [sectionsRef, headerHeight] // headerHeight가 변경될 때만 함수 재생성
   );
 
   return (
