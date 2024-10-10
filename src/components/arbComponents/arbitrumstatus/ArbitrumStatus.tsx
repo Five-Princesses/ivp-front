@@ -5,7 +5,7 @@ import BoxFrame from '../../common/BoxFrame';
 import SubtitleBox from '../../common/SubtitleBox';
 import ContentBox from '../../common/ContentBox';
 import CustomAccordion from '../../common/CustomAccordion';
-import { ComponentStatus, IArbitrumStatus, Component } from './types';
+import { ComponentStatus, IArbitrumStatus, IComponent } from './types';
 import StatusCard from './StatusCard';
 
 // 컴포넌트 상태에 따른 색상을 반환하는 함수
@@ -23,21 +23,19 @@ const getStatusColor = (status: ComponentStatus) => {
       return 'gray';
   }
 };
+const statusMap: { [key: string]: ComponentStatus } = {
+  OPERATIONAL: ComponentStatus.OPERATIONAL,
+  PARTIALOUTAGE: ComponentStatus.PARTIALOUTAGE,
+  MINOROUTAGE: ComponentStatus.MINOROUTAGE,
+  MAJOROUTAGE: ComponentStatus.MAJOROUTAGE,
+};
 
-// 문자열을 ComponentStatus Enum 타입으로 변환
 const convertStringToEnum = (value: string): ComponentStatus => {
-  switch (value) {
-    case 'OPERATIONAL':
-      return ComponentStatus.OPERATIONAL;
-    case 'PARTIALOUTAGE':
-      return ComponentStatus.PARTIALOUTAGE;
-    case 'MINOROUTAGE':
-      return ComponentStatus.MINOROUTAGE;
-    case 'MAJOROUTAGE':
-      return ComponentStatus.MAJOROUTAGE;
-    default:
-      throw new Error(`Invalid status value: ${value}`);
+  const status = statusMap[value];
+  if (status !== undefined) {
+    return status;
   }
+  throw new Error(`Invalid status value: ${value}`);
 };
 
 function ArbitrumStatus() {
@@ -46,32 +44,44 @@ function ArbitrumStatus() {
 
   // Arbitrum 상태 정보를 가져오는 함수
   const getArbitrumStatus = async (): Promise<IArbitrumStatus> => {
-    const response = await axios.get<IArbitrumStatus>(
-      'https://status.arbitrum.io/v2/components.json'
-    );
-    return response.data;
+    try {
+      const response = await axios.get<IArbitrumStatus>(
+        'https://status.arbitrum.io/v2/components.json'
+      );
+      return response.data;
+    } catch (e) {
+      console.error('Failed to fetch Arbitrum status:', e);
+      return {
+        components: [],
+      };
+    }
   };
 
   // 컴포넌트가 마운트될 때 데이터 가져오기
   useEffect(() => {
     // skeleton 적용 테스트를 위해 setTimeout 추가
     // setTimeout(() => {
-    getArbitrumStatus().then(data => {
-      const filteredData: IArbitrumStatus = {
-        ...data,
-        components: data.components
-          .filter(
-            (component: Component) =>
-              component.group?.id === 'clm870t63469012bvonu3p8jat5' // ARB1 Group ID
-          )
-          .map((component: Component) => ({
-            ...component,
-            status: convertStringToEnum(component.status),
-          })),
-      };
-      setStatus(filteredData);
-      setLoading(false); // 데이터 로드 완료 후 로딩 해제
-    });
+    getArbitrumStatus()
+      .then(data => {
+        const filteredData: IArbitrumStatus = {
+          ...data,
+          components: data.components
+            .filter(
+              (component: IComponent) =>
+                component.group?.id === 'clm870t63469012bvonu3p8jat5' // ARB1 Group ID
+            )
+            .map((component: IComponent) => ({
+              ...component,
+              status: convertStringToEnum(component.status),
+            })),
+        };
+        setStatus(filteredData);
+        setLoading(false); // 데이터 로드 완료 후 로딩 해제
+      })
+      .catch(error => {
+        console.error('Failed to fetch Arbitrum status:', error);
+        setLoading(false);
+      });
     // }, 100000);
   }, []);
 

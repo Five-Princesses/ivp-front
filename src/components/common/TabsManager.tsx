@@ -1,5 +1,6 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { Tab, Tabs } from '@mui/material';
+import { throttle } from 'lodash';
 
 interface TabsManagerProps {
   sectionsRef: {
@@ -26,25 +27,17 @@ function TabsManager({ sectionsRef }: TabsManagerProps) {
 
   // 스크롤 위치를 감지하여 탭 상태 업데이트
   useEffect(() => {
-    const handleScroll = () => {
-      // 정확한 스크롤 위치 보정
+    // `throttle` 적용하여 `handleScroll` 함수를 제한
+    const handleScroll = throttle(() => {
       const scrollPosition = window.scrollY + headerHeight;
 
-      const sections = [
-        { ref: sectionsRef.status, name: 'status' },
-        { ref: sectionsRef.gas, name: 'gas' },
-        { ref: sectionsRef.securitycouncil, name: 'securitycouncil' },
-      ];
+      const sections = Object.keys(sectionsRef)
+        .filter(key => key !== 'header')
+        .map(key => ({
+          ref: sectionsRef[key as keyof typeof sectionsRef],
+          name: key,
+        }));
 
-      // 각 섹션의 위치와 스크롤 위치를 출력하여 정확한 값을 확인
-      //   sections.forEach(section => {
-      //     const sectionTop = section.ref.current
-      //       ? section.ref.current.getBoundingClientRect().top + window.scrollY
-      //       : 0;
-      //     console.log(`Section ${section.name} top:`, sectionTop);
-      //   });
-
-      // 스크롤 위치와 섹션 위치 비교하여 탭 상태 업데이트
       for (let i = 0; i < sections.length; i += 1) {
         const currentSection = sections[i];
         const nextSection = sections[i + 1];
@@ -52,12 +45,12 @@ function TabsManager({ sectionsRef }: TabsManagerProps) {
         const currentSectionTop = currentSection.ref.current
           ? currentSection.ref.current.getBoundingClientRect().top +
             window.scrollY -
-            headerHeight // headerHeight 반영
+            headerHeight
           : 0;
         const nextSectionTop = nextSection?.ref.current
           ? nextSection.ref.current.getBoundingClientRect().top +
             window.scrollY -
-            headerHeight // headerHeight 반영
+            headerHeight
           : Number.MAX_VALUE;
 
         if (
@@ -65,15 +58,19 @@ function TabsManager({ sectionsRef }: TabsManagerProps) {
           scrollPosition < nextSectionTop
         ) {
           setValue(currentSection.name);
-          //   console.log(`Current active section: ${currentSection.name}`);
           break;
         }
       }
-    };
+    }, 100); // 100ms로 throttle 설정
 
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [sectionsRef, headerHeight]);
+
+    // 클린업 함수: 이벤트 리스너 및 throttle 해제
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      handleScroll.cancel(); // `throttle` 해제
+    };
+  }, [headerHeight, sectionsRef]);
 
   // 탭 변경 시 스크롤 이동 처리
   const handleChange = useCallback(

@@ -23,6 +23,7 @@
     "cheerio": "^1.0.0",
     "ethers": "^6.13.3",
     "invariant": "^2.2.4",
+    "lodash": "^4.17.21",
     "react": "^18.2.0",
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.2.0",
@@ -30,8 +31,7 @@
     "recoil": "^0.7.7",
     "rxjs": "^7.8.1",
     "styled-components": "^6.1.8",
-    "viem": "^2.21.16",
-    "yarn": "^1.22.22"
+    "viem": "^2.21.16"
   },
   "devDependencies": {
     "@eslint/js": "^9.11.1",
