@@ -5,20 +5,20 @@ export enum ComponentStatus {
   MAJOROUTAGE = 'Major Outage',
 }
 
-export interface Component {
+export interface IGroup {
+  id: string;
+  name: string;
+  description: string;
+}
+
+export interface IComponent {
   id: string;
   name: string;
   description: string;
   status: ComponentStatus;
-  group?: Group;
+  group?: IGroup;
 }
 
-export interface Group {
-  id: string;
-  name: string;
-  description: string;
-}
-
-export interface ArbitrumStatus {
-  components: Component[];
+export interface IArbitrumStatus {
+  components: IComponent[];
 }
