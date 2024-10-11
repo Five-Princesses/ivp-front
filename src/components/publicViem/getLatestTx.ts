@@ -4,11 +4,8 @@ import { mainnetPublicClient } from './publicClient';
 // Etherscan API 키 (Etherscan에서 발급받은 API 키 입력)
 const ETHERSCAN_API_KEY = 'Z2SICEXNDNT3WRK7A6QX44TTHX4ASHY9HB';
 
-// L1_BATCH_SUBMITTER 주소 for test
-export const L1_BATCH_SUBMITTER = '0xC1b634853Cb333D3aD8663715b08f41A3Aec47cc';
-
 // L1_BATCH_SUBMITTER의 가장 최근 트랜잭션 해시를 Etherscan API로 가져오는 함수
-export async function getLatestTransactionHash(address: string) {
+export default async function getLatestTransactionHash(address: string) {
   try {
     // 최신 블록 번호 가져오기
     const latestBlockNumber = await mainnetPublicClient.getBlockNumber();

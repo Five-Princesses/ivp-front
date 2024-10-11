@@ -1,3 +1,4 @@
+/*
 import React, { useState } from 'react';
 import {
   Box,
@@ -22,6 +23,14 @@ import {
   L1_SECURITY_COUNCIL_ADDRESS,
   L2_SECURITY_COUNCIL_ADDRESS,
   L2_SECURITY_COUNCIL_PROPOSE_ADDRESS,
+  getSecurityCouncilL1LatestTxHash1,
+  getSecurityCouncilL1LatestTxHash2,
+  getSecurityCouncilL1LatestTxHash3,
+  getSecurityCouncilL2LatestTxHash1,
+  getSecurityCouncilL2LatestTxHash2,
+  getSecurityCouncilL2LatestTxHash3,
+  getSecurityCouncilL2LatestTxHash4,
+  getSecurityCouncilL2LatestTxHash5,
 } from './arbHook/SecurityCouncilHook';
 import BoxFrame from '../common/BoxFrame';
 import SubtitleBox from '../common/SubtitleBox';
@@ -53,6 +62,108 @@ export default function SecurityCouncil() {
   const [balances, setBalances] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(false);
   const [dataFetched, setDataFetched] = useState(false);
+
+  const [l1TransactionHashes, setL1TransactionHashes] = useState<string[]>([]);
+  const [l2TransactionHashes, setL2TransactionHashes] = useState<string[]>([]); // L2 Security Council 상태 추가
+  const [l2ProposeTransactionHashes, setL2ProposeTransactionHashes] = useState<
+    string[]
+  >([]);
+
+  // 배열을 주어진 크기로 나누는 함수
+  function chunkArray<T>(array: T[], size: number): T[][] {
+    const result: T[][] = [];
+    for (let i = 0; i < array.length; i += size) {
+      result.push(array.slice(i, i + size));
+    }
+    return result;
+  }
+  async function fetchL1TransactionHashes(
+    membersData: string[]
+  ): Promise<string[]> {
+    const l1TransactionHashes: string[] = [];
+    const chunks = chunkArray(membersData, 5); // 멤버 데이터를 5개씩 그룹으로 나누기
+
+    // L1 함수 배열 정의
+    const l1Functions = [
+      getSecurityCouncilL1LatestTxHash1,
+      getSecurityCouncilL1LatestTxHash2,
+      getSecurityCouncilL1LatestTxHash3,
+    ];
+
+    for (let i = 0; i < chunks.length; i++) {
+      const chunk = chunks[i];
+      const l1Function = l1Functions[i % l1Functions.length]; // 함수들을 순환적으로 사용
+
+      let txHashes = [];
+      let attempts = 0;
+      const maxAttempts = 10;
+
+      // 최대 10번까지 재시도 시도
+      while (attempts < maxAttempts && txHashes.length === 0) {
+        try {
+          txHashes = await l1Function(chunk);
+        } catch (error) {
+          console.error(
+            `Error fetching L1 transaction hash for chunk ${chunk}:`,
+            error
+          );
+        }
+        attempts++;
+      }
+
+      txHashes.forEach(txHash =>
+        l1TransactionHashes.push(txHash || 'No Transaction')
+      );
+    }
+
+    return l1TransactionHashes;
+  }
+
+  async function fetchL2TransactionHashes(
+    membersData: string[]
+  ): Promise<string[]> {
+    const l2TransactionHashes: string[] = [];
+    const chunks = chunkArray(membersData, 5);
+    console.log('chunks', chunks); // 멤버 데이터를 5개씩 그룹으로 나누기
+
+    // L2 함수 배열 정의
+    const l2Functions = [
+      getSecurityCouncilL2LatestTxHash1,
+      getSecurityCouncilL2LatestTxHash2,
+      getSecurityCouncilL2LatestTxHash3,
+      getSecurityCouncilL2LatestTxHash4,
+      getSecurityCouncilL2LatestTxHash5,
+    ];
+
+    for (let i = 0; i < chunks.length; i++) {
+      const chunk = chunks[i];
+      const l2Function = l2Functions[i % l2Functions.length];
+
+      let txHashes = [];
+      let attempts = 0;
+      const maxAttempts = 10;
+
+      // 최대 3번까지 재시도 시도
+      while (attempts < maxAttempts && txHashes.length === 0) {
+        try {
+          txHashes = txHashes.concat(await l2Function(chunk));
+        } catch (error) {
+          console.error(
+            `Error fetching L2 transaction hash for chunk ${chunk}:`,
+            error
+          );
+        }
+        attempts++;
+        console.log('try', attempts);
+      }
+
+      txHashes.forEach(txHash =>
+        l2TransactionHashes.push(txHash || 'No Transaction')
+      );
+    }
+
+    return l2TransactionHashes;
+  }
 
   // fetchData 함수
   const fetchData = async () => {
@@ -109,6 +220,16 @@ export default function SecurityCouncil() {
       l2ProposeBalancesResult.forEach(({ member, balance }) => {
         balanceObj[`L2Propose-${member}`] = balance;
       });
+
+      // L1, L2, L2 Propose 트랜잭션 해시 가져오기
+      const l1TransactionHashes = await fetchL1TransactionHashes(l1MembersData);
+      const l2TransactionHashes = await fetchL2TransactionHashes(l2MembersData);
+      const l2ProposeTransactionHashes =
+        await fetchL2TransactionHashes(l2ProposeMembersData);
+
+      setL1TransactionHashes(l1TransactionHashes);
+      setL2TransactionHashes(l2TransactionHashes);
+      setL2ProposeTransactionHashes(l2ProposeTransactionHashes);
 
       setBalances(balanceObj);
       setDataFetched(true); // 데이터가 성공적으로 호출됨을 표시
@@ -336,6 +457,321 @@ export default function SecurityCouncil() {
     );
   };
 
+  const renderTableTrue = () => {
+    const totalMembers = Math.max(l1Members.length, l2Members.length);
+
+    return (
+      <TableContainer component={Paper}>
+        <Table sx={{ borderCollapse: 'collapse' }}>
+          <TableHead>
+            <TableRow>
+              <TableCell sx={{ border: '1px solid black' }}>
+                <Link
+                  href={createLink(L1_SECURITY_COUNCIL_ADDRESS, true)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  L1 Security Council
+                </Link>
+              </TableCell>
+              <TableCell sx={{ border: '1px solid black' }}>
+                <Link
+                  href={createLink(L2_SECURITY_COUNCIL_ADDRESS, false)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  L2 Security Council
+                </Link>
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {[...Array(totalMembers)].map((_, index) => {
+              const l1Member = l1Members[index];
+              const l1TransactionHash = l1TransactionHashes[index];
+              const l2Member = l2Members[index];
+              const l2TransactionHash = l2TransactionHashes[index];
+
+              return (
+                <TableRow key={`${l1Member || ''}-${l2Member || ''}`}>
+                  <TableCell sx={{ border: '1px solid black' }}>
+                    {l1Member ? (
+                      <>
+                        <Link
+                          href={createLink(l1Member, true)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {formatAddress(l1Member)}
+                        </Link>
+                        {l1TransactionHash ? (
+                          <Box
+                            sx={{
+                              fontSize: '12px',
+                              color: 'gray',
+                              marginTop: '4px',
+                            }}
+                          >
+                            Latest Tx:{' '}
+                            <Link
+                              href={`https://etherscan.io/tx/${l1TransactionHash}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              underline="hover"
+                            >
+                              {l1TransactionHash}
+                            </Link>
+                          </Box>
+                        ) : (
+                          <Box
+                            sx={{
+                              fontSize: '12px',
+                              color: 'red',
+                              marginTop: '4px',
+                            }}
+                          >
+                            No Transaction
+                          </Box>
+                        )}
+                      </>
+                    ) : null}
+                  </TableCell>
+
+                  <TableCell sx={{ border: '1px solid black' }}>
+                    {l2Member ? (
+                      <>
+                        <Link
+                          href={createLink(l2Member, false)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {formatAddress(l2Member)}
+                        </Link>
+                        {l2TransactionHash ? (
+                          <Box
+                            sx={{
+                              fontSize: '12px',
+                              color: 'gray',
+                              marginTop: '4px',
+                            }}
+                          >
+                            Latest Tx:{' '}
+                            <Link
+                              href={`https://arbiscan.io/tx/${l2TransactionHash}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              underline="hover"
+                            >
+                              {l2TransactionHash}
+                            </Link>
+                          </Box>
+                        ) : (
+                          <Box
+                            sx={{
+                              fontSize: '12px',
+                              color: 'red',
+                              marginTop: '4px',
+                            }}
+                          >
+                            No Transaction
+                          </Box>
+                        )}
+                      </>
+                    ) : null}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    );
+  };
+
+  const renderTableFalse = () => {
+    const totalMembers = Math.max(
+      l1Members.length,
+      l2Members.length,
+      l2ProposeMembers.length
+    );
+
+    return (
+      <TableContainer component={Paper}>
+        <Table sx={{ borderCollapse: 'collapse' }}>
+          <TableHead>
+            <TableRow>
+              <TableCell sx={{ border: '1px solid black' }}>
+                <Link
+                  href={createLink(L1_SECURITY_COUNCIL_ADDRESS, true)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  L1 Security Council
+                </Link>
+              </TableCell>
+              <TableCell sx={{ border: '1px solid black' }}>
+                <Link
+                  href={createLink(L2_SECURITY_COUNCIL_ADDRESS, false)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  L2 Security Council
+                </Link>
+              </TableCell>
+              <TableCell sx={{ border: '1px solid black' }}>
+                <Link
+                  href={createLink(L2_SECURITY_COUNCIL_PROPOSE_ADDRESS, false)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  L2 Security Council Propose
+                </Link>
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {[...Array(totalMembers)].map((_, index) => {
+              const l1Member = l1Members[index];
+              const l1TransactionHash = l1TransactionHashes[index];
+              const l2Member = l2Members[index];
+              const l2TransactionHash = l2TransactionHashes[index];
+              const l2ProposeMember = l2ProposeMembers[index];
+              const l2ProposeTransactionHash =
+                l2ProposeTransactionHashes[index];
+
+              return (
+                <TableRow
+                  key={`${l1Member || ''}-${l2Member || ''}-${l2ProposeMember || ''}`}
+                >
+                  <TableCell sx={{ border: '1px solid black' }}>
+                    {l1Member ? (
+                      <>
+                        <Link
+                          href={createLink(l1Member, true)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {formatAddress(l1Member)}
+                        </Link>
+                        {l1TransactionHash ? (
+                          <Box
+                            sx={{
+                              fontSize: '12px',
+                              color: 'gray',
+                              marginTop: '4px',
+                            }}
+                          >
+                            Latest Tx: {l1TransactionHash}
+                          </Box>
+                        ) : (
+                          <Box
+                            sx={{
+                              fontSize: '12px',
+                              color: 'red',
+                              marginTop: '4px',
+                            }}
+                          >
+                            No Transaction
+                          </Box>
+                        )}
+                      </>
+                    ) : null}
+                  </TableCell>
+
+                  <TableCell sx={{ border: '1px solid black' }}>
+                    {l2Member ? (
+                      <>
+                        <Link
+                          href={createLink(l2Member, false)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {formatAddress(l2Member)}
+                        </Link>
+                        {l2TransactionHash ? (
+                          <Box
+                            sx={{
+                              fontSize: '12px',
+                              color: 'gray',
+                              marginTop: '4px',
+                            }}
+                          >
+                            Latest Tx:{' '}
+                            <Link
+                              href={`https://arbiscan.io/tx/${l2TransactionHash}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              underline="hover"
+                            >
+                              {l2TransactionHash}
+                            </Link>
+                          </Box>
+                        ) : (
+                          <Box
+                            sx={{
+                              fontSize: '12px',
+                              color: 'red',
+                              marginTop: '4px',
+                            }}
+                          >
+                            No Transaction
+                          </Box>
+                        )}
+                      </>
+                    ) : null}
+                  </TableCell>
+
+                  <TableCell sx={{ border: '1px solid black' }}>
+                    {l2ProposeMember ? (
+                      <>
+                        <Link
+                          href={createLink(l2ProposeMember, false)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {formatAddress(l2ProposeMember)}
+                        </Link>
+                        {l2ProposeTransactionHash ? (
+                          <Box
+                            sx={{
+                              fontSize: '12px',
+                              color: 'gray',
+                              marginTop: '4px',
+                            }}
+                          >
+                            Latest Tx:{' '}
+                            <Link
+                              href={`https://arbiscan.io/tx/${l2ProposeTransactionHash}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              underline="hover"
+                            >
+                              {l2ProposeTransactionHash}
+                            </Link>
+                          </Box>
+                        ) : (
+                          <Box
+                            sx={{
+                              fontSize: '12px',
+                              color: 'red',
+                              marginTop: '4px',
+                            }}
+                          >
+                            No Transaction
+                          </Box>
+                        )}
+                      </>
+                    ) : null}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    );
+  };
+
   return (
     <BoxFrame title="Security Council">
       <SubtitleBox subtitle="Summary">
@@ -350,26 +786,6 @@ export default function SecurityCouncil() {
         onChange={handleAccordionChange}
         loading={loading}
       >
-        <ContentBox
-          content={
-            <>
-              All Members Are Same:{' '}
-              <Box
-                component="span"
-                sx={{
-                  display: 'inline-block',
-                  bgcolor: areAllMembersSame() ? 'blue' : 'red',
-                  color: 'white',
-                  padding: '4px 8px',
-                  borderRadius: 1,
-                }}
-              >
-                {areAllMembersSame() ? 'True' : 'False'}
-              </Box>
-            </>
-          }
-        />
-
         <ContentBox
           content={
             <>
@@ -389,22 +805,54 @@ export default function SecurityCouncil() {
             </>
           }
         />
-      </CustomAccordion>
-      <SubtitleBox subtitle="L2 Proposer Security Council">
         <ContentBox
-          content="The Security Council A non-urgent upgrade can be made if 9 out of 12 signatures from the Security Council are obtained. The non-urgent upgrade begins on L2 and posts the transaction to L1 after a 3-day delay. Since there is a 1-day delay that forces the transaction to be included in the next state update, actions must be taken within 2 days to avoid the timelock. During the timelock periods on both L1 and L2, the Security Council can cancel the upgrade. After the 3-day timelock on L2, there is a challenge period of 6 days and 8 hours, followed by a 3-day L1 timelock. Once these periods have passed, the upgrade is confirmed. During the timelock periods on both L1 and L2, the Emergency Security Council can cancel the upgrade. perform upgrades when it secures 9 out of 12 signatures 
-        from its members. Regular upgrades will incur a 12-day and 8-hour delay. However, in the case of a security threat, an emergency upgrade can be executed immediately without delay. Additionally, during the timelock period, the Security Council also holds the authority to cancel the upgrade."
+          content={
+            <>
+              All Members Are Same:{' '}
+              <Box
+                component="span"
+                sx={{
+                  display: 'inline-block',
+                  bgcolor: areAllMembersSame() ? 'blue' : 'red',
+                  color: 'white',
+                  padding: '4px 8px',
+                  borderRadius: 1,
+                }}
+              >
+                {areAllMembersSame() ? 'True' : 'False'}
+              </Box>
+            </>
+          }
+        />
+        {areAllMembersSame() ? (
+          <>
+            <ContentBox content="Security Council's latest transaction hash" />
+            {renderTableTrue()}
+          </>
+        ) : (
+          <>
+            <ContentBox content="Security Council's latest transaction hash(members are diffrent)" />
+            {renderTableFalse()}
+          </>
+        )}
+      </CustomAccordion>
+      <SubtitleBox subtitle="The process of being upgraded with the authority of the Security Council.">
+        <ContentBox content="In a typical upgrade process, discussions are initiated on the Arbitrum DAO forum, followed by a yes/no vote on Snapshot, and then an on-chain vote through Tally before the upgrade is implemented. However, for the Security Council, an upgrade can be executed without going through the voting process, provided it obtains signatures from at least 9 out of the 12 Security Council members. Upgrades are classified into two categories: proposer upgrades and emergency upgrades, and depending on the type, contracts are divided into the L2 Proposer Security Council, L2 Emergency Security Council, and L1 Security Council. Although their roles are differentiated, the same Security Council members must constitute each of the contracts." />
+      </SubtitleBox>
+      <SubtitleBox subtitle="proposer upgrade">
+        <ContentBox
+          content="All upgrades begin on Layer 2 (L2). A proposer upgrade is initiated by the L2 Proposer Security Council, and after passing through a 3-day L2 Timelock, it moves to the outbox. If there is disagreement with the upgrade, users have a 2-day window to exit L2 during the 3-day L2 Timelock period, excluding the one-day delay for forcibly executing a transaction on Layer 1 (L1).
+
+A 6-day and 8-hour challenge period occurs, and if no issues arise, the upgrade is sent to the L1 Timelock, where there is an additional 3-day delay. During the 3-day L2 Timelock period, the L2 Emergency Security Council has the authority to cancel the upgrade, and during the 3-day L1 Timelock period, the L1 Security Council has the authority to cancel the upgrade.
+
+After the L1 Timelock period, the upgrade is sent back to L2 via the inbox, where all L2 system contracts are upgraded through the L2 Upgrade Executor. Simultaneously, all L1 system contracts are upgraded using the Upgrade Executor module on L1."
         />
       </SubtitleBox>
-      <SubtitleBox subtitle="L2 Emergency Security Council">
-        <ContentBox
-          content="The Smart Contract can be urgently upgraded without delay using the Upgrade Executor module, and it can take on the administrator role for all contracts within the system.
-- **Upgrade Executor Module**:
-    - It serves as the administrator for all contracts within the system.
-    - It can perform upgrades without prior notice or delay.
-    - It has unlimited upgrade authority, allowing it to upgrade transaction censorship, bridge implementations, and access all funds stored in the bridge or modify the sequencer or other system components."
-        />
+      <SubtitleBox subtitle="Emergency upgrade">
+        <ContentBox content="In the case of an emergency upgrade, when a security threat is detected, swift action is required, so a long upgrade process like the proposer upgrade is not suitable. Therefore, the L2 Emergency Security Council immediately executes the L2 Upgrade Executor to upgrade all system contracts on Layer 2 (L2). Simultaneously, the L1 Emergency Security Council executes the Upgrade Executor to upgrade all system contracts on Layer 1 (L1). After the emergency upgrade is carried out, the Emergency Security Council is required to submit a transparency report regarding the upgrade." />
       </SubtitleBox>
     </BoxFrame>
   );
 }
+
+*/

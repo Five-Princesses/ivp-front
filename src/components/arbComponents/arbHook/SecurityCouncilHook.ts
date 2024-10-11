@@ -1,8 +1,156 @@
+/*
 import { ReadContractErrorType } from 'viem';
 import {
   mainnetPublicClient,
   arbitrumPublicClient,
 } from '../../publicViem/publicClient';
+
+// ==================================getLatestTx==========================================
+
+import {
+  getLatestL1TransactionHash1,
+  getLatestL1TransactionHash2,
+  getLatestL1TransactionHash3,
+} from '../../publicViem/getLatestL1TX';
+import {
+  getLatestL2TransactionHash1,
+  getLatestL2TransactionHash2,
+  getLatestL2TransactionHash3,
+  getLatestL2TransactionHash4,
+  getLatestL2TransactionHash5,
+} from '../../publicViem/getLatestL2TX';
+
+// 여러 멤버의 최신 트랜잭션 해시를 가져오는 함수 L1
+export async function getSecurityCouncilL1LatestTxHash1(
+  members: string[]
+): Promise<string[]> {
+  try {
+    const transactionHashPromises = members.map((member: string) =>
+      getLatestL1TransactionHash1(member)
+    );
+
+    const transactionHashes = await Promise.all(transactionHashPromises);
+    return transactionHashes; // 각 멤버의 최신 트랜잭션 해시 배열을 반환
+  } catch (error) {
+    console.error('Error fetching Security Council transaction hashes:', error);
+    return [];
+  }
+}
+
+export async function getSecurityCouncilL1LatestTxHash2(
+  members: string[]
+): Promise<string[]> {
+  try {
+    const transactionHashPromises = members.map((member: string) =>
+      getLatestL1TransactionHash2(member)
+    );
+
+    const transactionHashes = await Promise.all(transactionHashPromises);
+    return transactionHashes; // 각 멤버의 최신 트랜잭션 해시 배열을 반환
+  } catch (error) {
+    console.error('Error fetching Security Council transaction hashes:', error);
+    return [];
+  }
+}
+
+export async function getSecurityCouncilL1LatestTxHash3(
+  members: string[]
+): Promise<string[]> {
+  try {
+    const transactionHashPromises = members.map((member: string) =>
+      getLatestL1TransactionHash3(member)
+    );
+
+    const transactionHashes = await Promise.all(transactionHashPromises);
+    return transactionHashes; // 각 멤버의 최신 트랜잭션 해시 배열을 반환
+  } catch (error) {
+    console.error('Error fetching Security Council transaction hashes:', error);
+    return [];
+  }
+}
+
+//L2
+export async function getSecurityCouncilL2LatestTxHash1(
+  members: string[]
+): Promise<string[]> {
+  try {
+    const transactionHashPromises = members.map((member: string) =>
+      getLatestL2TransactionHash1(member)
+    );
+
+    const transactionHashes = await Promise.all(transactionHashPromises);
+    return transactionHashes; // 각 멤버의 최신 트랜잭션 해시 배열을 반환
+  } catch (error) {
+    console.error('Error fetching Security Council transaction hashes:', error);
+    return [];
+  }
+}
+
+export async function getSecurityCouncilL2LatestTxHash2(
+  members: string[]
+): Promise<string[]> {
+  try {
+    const transactionHashPromises = members.map((member: string) =>
+      getLatestL2TransactionHash2(member)
+    );
+
+    const transactionHashes = await Promise.all(transactionHashPromises);
+    return transactionHashes; // 각 멤버의 최신 트랜잭션 해시 배열을 반환
+  } catch (error) {
+    console.error('Error fetching Security Council transaction hashes:', error);
+    return [];
+  }
+}
+
+export async function getSecurityCouncilL2LatestTxHash3(
+  members: string[]
+): Promise<string[]> {
+  try {
+    const transactionHashPromises = members.map((member: string) =>
+      getLatestL2TransactionHash3(member)
+    );
+
+    const transactionHashes = await Promise.all(transactionHashPromises);
+    return transactionHashes; // 각 멤버의 최신 트랜잭션 해시 배열을 반환
+  } catch (error) {
+    console.error('Error fetching Security Council transaction hashes:', error);
+    return [];
+  }
+}
+
+export async function getSecurityCouncilL2LatestTxHash4(
+  members: string[]
+): Promise<string[]> {
+  try {
+    const transactionHashPromises = members.map((member: string) =>
+      getLatestL2TransactionHash4(member)
+    );
+
+    const transactionHashes = await Promise.all(transactionHashPromises);
+    return transactionHashes; // 각 멤버의 최신 트랜잭션 해시 배열을 반환
+  } catch (error) {
+    console.error('Error fetching Security Council transaction hashes:', error);
+    return [];
+  }
+}
+
+export async function getSecurityCouncilL2LatestTxHash5(
+  members: string[]
+): Promise<string[]> {
+  try {
+    const transactionHashPromises = members.map((member: string) =>
+      getLatestL2TransactionHash5(member)
+    );
+
+    const transactionHashes = await Promise.all(transactionHashPromises);
+    return transactionHashes; // 각 멤버의 최신 트랜잭션 해시 배열을 반환
+  } catch (error) {
+    console.error('Error fetching Security Council transaction hashes:', error);
+    return [];
+  }
+}
+
+// ====================================================================================
 
 // ===================================Address==========================================
 // ====================================================================================
@@ -174,3 +322,5 @@ export async function getBalanceOnL2({
     return -1n;
   }
 }
+
+*/
