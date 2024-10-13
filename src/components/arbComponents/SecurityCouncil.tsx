@@ -222,7 +222,6 @@ export default function SecurityCouncil() {
                   sx={{
                     display: 'inline-block',
                     border: '0.9px solid black',
-                    color: 'black',
                     padding: '4px 8px',
                     borderRadius: 1,
                   }}
@@ -237,7 +236,6 @@ export default function SecurityCouncil() {
                   sx={{
                     display: 'inline-block',
                     border: '0.9px solid black',
-                    color: 'black',
                     padding: '4px 8px',
                     borderRadius: 1,
                   }}
