@@ -4,6 +4,39 @@ import {
   arbitrumPublicClient,
 } from '../../publicViem/publicClient';
 
+// ==================================getLatestTx==========================================
+
+import getLatestL1Transactions from '../../publicViem/getLatestL1TX'; // Fetch optimized functions
+import getLatestL2Transactions from '../../publicViem/getLatestL2TX';
+
+// Fetch latest L1 transaction hashes
+export async function fetchL1TransactionHashes(
+  members: string[]
+): Promise<string[]> {
+  try {
+    const transactionHashes = await getLatestL1Transactions(members);
+    return transactionHashes.map(hash => hash || 'No Transaction');
+  } catch (error) {
+    console.error('Error fetching L1 transaction hashes:', error);
+    return members.map(() => 'Error');
+  }
+}
+
+// Fetch latest L2 transaction hashes
+export async function fetchL2TransactionHashes(
+  members: string[]
+): Promise<string[]> {
+  try {
+    const transactionHashes = await getLatestL2Transactions(members);
+    return transactionHashes.map(hash => hash || 'No Transaction');
+  } catch (error) {
+    console.error('Error fetching L2 transaction hashes:', error);
+    return members.map(() => 'Error');
+  }
+}
+
+// ====================================================================================
+
 // ===================================Address==========================================
 // ====================================================================================
 // ====================================================================================
