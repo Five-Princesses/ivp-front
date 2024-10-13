@@ -1,12 +1,48 @@
 import axios from 'axios';
 import getLatestTransactionHash from '../../publicViem/getLatestTx';
 
+// Define the structure of blob data and commitment data
+interface BlobData {
+  versionedHash: string;
+  index: number;
+}
+
+interface CommitmentData {
+  versionedHash: string;
+  commitment: string;
+}
+
 // L1_BATCH_SUBMITTER 주소 for test
 export const L1_BATCH_SUBMITTER = '0xC1b634853Cb333D3aD8663715b08f41A3Aec47cc';
 
 // L1_BATCH_SUBMITTER의 가장 최근 트랜잭션 해시를 가져오는 함수
 export async function getBatchSubmitterLatestTxHash() {
   return getLatestTransactionHash(L1_BATCH_SUBMITTER);
+}
+
+// versionedHash로부터 commitment 값을 가져오는 함수
+export async function fetchBlobCommitment(versionedHash: string) {
+  try {
+    const response = await axios.get(
+      `https://api.blobscan.com/blobs/${versionedHash}`
+    );
+    const { data } = response;
+
+    if (!data) {
+      console.error(
+        'BlobScan API에서 commitment 데이터를 가져오는 데 실패했습니다.'
+      );
+      return null;
+    }
+
+    return data;
+  } catch (error) {
+    console.error(
+      'BlobScan API에서 commitment 데이터를 가져오는 도중 오류 발생:',
+      error
+    );
+    return null;
+  }
 }
 
 // BlobScan API를 통해 트랜잭션 데이터를 가져오는 함수
@@ -23,17 +59,25 @@ export async function fetchBlobDataFromApi(txHash: string) {
       return null;
     }
 
-    // 필요한 값 추출
-    const { blobGasUsed } = data; // Blob 가스 사용량
-    const { blobAsCalldataGasUsed } = data; // Calldata로 변환 시 예상 가스 사용량
+    const { blobGasUsed, blobAsCalldataGasUsed, blobs } = data; // Blob 가스 사용량 및 blobs 추출
 
-    console.log('Blob Gas Used:', blobGasUsed);
-    console.log('Blob As Calldata Gas Used:', blobAsCalldataGasUsed);
+    // Use the correct type for `blobs` and ensure proper structure
+    const commitments: CommitmentData[] = await Promise.all(
+      blobs.map(async (blob: BlobData): Promise<CommitmentData> => {
+        const { versionedHash } = blob;
+        const commitmentData = await fetchBlobCommitment(versionedHash);
+        return {
+          versionedHash,
+          commitment: commitmentData?.commitment || 'N/A',
+        };
+      })
+    );
 
     return {
       blobGasUsed,
       blobAsCalldataGasUsed,
       transactionHash: txHash,
+      commitments,
     };
   } catch (error) {
     console.error(
@@ -47,7 +91,6 @@ export async function fetchBlobDataFromApi(txHash: string) {
 // 트랜잭션 해시로부터 Blob Gas Used와 Blob As Calldata Gas 데이터를 API로 가져오는 함수
 export async function fetchBlobDataFromTransaction(txHash: string) {
   try {
-    // L1_BATCH_SUBMITTER의 가장 최근 트랜잭션 해시를 가져옴
     if (!txHash) {
       console.error('트랜잭션 해시를 가져오는 데 실패했습니다.');
       return null;
@@ -63,6 +106,7 @@ export async function fetchBlobDataFromTransaction(txHash: string) {
       console.log(
         `Blob As Calldata Gas Used: ${blobData.blobAsCalldataGasUsed}`
       );
+      console.log('Commitments:', blobData.commitments);
     }
 
     return blobData;
