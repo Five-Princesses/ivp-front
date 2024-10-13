@@ -51,13 +51,13 @@ async function fetchLatestL2TransactionHash(
     if (response.data.status !== '1') {
       if (response.data.message === 'No transactions found') {
         console.log(`No transactions found for address: ${address}`);
-        return 'No Transaction';
+        return null;
       }
       throw new Error(`Arbiscan API Error: ${response.data.message}`);
     }
 
     const transactions = response.data.result;
-    return transactions.length > 0 ? transactions[0].hash : 'No Transaction';
+    return transactions.length > 0 ? transactions[0].hash : null;
   });
 }
 

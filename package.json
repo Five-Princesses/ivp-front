@@ -20,7 +20,6 @@
     "@toolpad/core": "^0.7.0",
     "axios": "^1.7.7",
     "chart.js": "^4.4.4",
-    "cheerio": "^1.0.0",
     "ethers": "^6.13.3",
     "invariant": "^2.2.4",
     "lodash": "^4.17.21",
