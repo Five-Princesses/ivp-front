@@ -1,4 +1,3 @@
-/*
 import React, { useState } from 'react';
 import {
   Box,
@@ -23,14 +22,8 @@ import {
   L1_SECURITY_COUNCIL_ADDRESS,
   L2_SECURITY_COUNCIL_ADDRESS,
   L2_SECURITY_COUNCIL_PROPOSE_ADDRESS,
-  getSecurityCouncilL1LatestTxHash1,
-  getSecurityCouncilL1LatestTxHash2,
-  getSecurityCouncilL1LatestTxHash3,
-  getSecurityCouncilL2LatestTxHash1,
-  getSecurityCouncilL2LatestTxHash2,
-  getSecurityCouncilL2LatestTxHash3,
-  getSecurityCouncilL2LatestTxHash4,
-  getSecurityCouncilL2LatestTxHash5,
+  fetchL1TransactionHashes,
+  fetchL2TransactionHashes,
 } from './arbHook/SecurityCouncilHook';
 import BoxFrame from '../common/BoxFrame';
 import SubtitleBox from '../common/SubtitleBox';
@@ -64,106 +57,10 @@ export default function SecurityCouncil() {
   const [dataFetched, setDataFetched] = useState(false);
 
   const [l1TransactionHashes, setL1TransactionHashes] = useState<string[]>([]);
-  const [l2TransactionHashes, setL2TransactionHashes] = useState<string[]>([]); // L2 Security Council 상태 추가
+  const [l2TransactionHashes, setL2TransactionHashes] = useState<string[]>([]);
   const [l2ProposeTransactionHashes, setL2ProposeTransactionHashes] = useState<
     string[]
   >([]);
-
-  // 배열을 주어진 크기로 나누는 함수
-  function chunkArray<T>(array: T[], size: number): T[][] {
-    const result: T[][] = [];
-    for (let i = 0; i < array.length; i += size) {
-      result.push(array.slice(i, i + size));
-    }
-    return result;
-  }
-  async function fetchL1TransactionHashes(
-    membersData: string[]
-  ): Promise<string[]> {
-    const l1TransactionHashes: string[] = [];
-    const chunks = chunkArray(membersData, 5); // 멤버 데이터를 5개씩 그룹으로 나누기
-
-    // L1 함수 배열 정의
-    const l1Functions = [
-      getSecurityCouncilL1LatestTxHash1,
-      getSecurityCouncilL1LatestTxHash2,
-      getSecurityCouncilL1LatestTxHash3,
-    ];
-
-    for (let i = 0; i < chunks.length; i++) {
-      const chunk = chunks[i];
-      const l1Function = l1Functions[i % l1Functions.length]; // 함수들을 순환적으로 사용
-
-      let txHashes = [];
-      let attempts = 0;
-      const maxAttempts = 10;
-
-      // 최대 10번까지 재시도 시도
-      while (attempts < maxAttempts && txHashes.length === 0) {
-        try {
-          txHashes = await l1Function(chunk);
-        } catch (error) {
-          console.error(
-            `Error fetching L1 transaction hash for chunk ${chunk}:`,
-            error
-          );
-        }
-        attempts++;
-      }
-
-      txHashes.forEach(txHash =>
-        l1TransactionHashes.push(txHash || 'No Transaction')
-      );
-    }
-
-    return l1TransactionHashes;
-  }
-
-  async function fetchL2TransactionHashes(
-    membersData: string[]
-  ): Promise<string[]> {
-    const l2TransactionHashes: string[] = [];
-    const chunks = chunkArray(membersData, 5);
-    console.log('chunks', chunks); // 멤버 데이터를 5개씩 그룹으로 나누기
-
-    // L2 함수 배열 정의
-    const l2Functions = [
-      getSecurityCouncilL2LatestTxHash1,
-      getSecurityCouncilL2LatestTxHash2,
-      getSecurityCouncilL2LatestTxHash3,
-      getSecurityCouncilL2LatestTxHash4,
-      getSecurityCouncilL2LatestTxHash5,
-    ];
-
-    for (let i = 0; i < chunks.length; i++) {
-      const chunk = chunks[i];
-      const l2Function = l2Functions[i % l2Functions.length];
-
-      let txHashes = [];
-      let attempts = 0;
-      const maxAttempts = 10;
-
-      // 최대 3번까지 재시도 시도
-      while (attempts < maxAttempts && txHashes.length === 0) {
-        try {
-          txHashes = txHashes.concat(await l2Function(chunk));
-        } catch (error) {
-          console.error(
-            `Error fetching L2 transaction hash for chunk ${chunk}:`,
-            error
-          );
-        }
-        attempts++;
-        console.log('try', attempts);
-      }
-
-      txHashes.forEach(txHash =>
-        l2TransactionHashes.push(txHash || 'No Transaction')
-      );
-    }
-
-    return l2TransactionHashes;
-  }
 
   // fetchData 함수
   const fetchData = async () => {
@@ -221,15 +118,16 @@ export default function SecurityCouncil() {
         balanceObj[`L2Propose-${member}`] = balance;
       });
 
-      // L1, L2, L2 Propose 트랜잭션 해시 가져오기
-      const l1TransactionHashes = await fetchL1TransactionHashes(l1MembersData);
-      const l2TransactionHashes = await fetchL2TransactionHashes(l2MembersData);
-      const l2ProposeTransactionHashes =
+      // 트랜잭션 해시를 가져와서 상태 업데이트
+      const l1TxHashes = await fetchL1TransactionHashes(l1MembersData);
+      const l2TxHashes = await fetchL2TransactionHashes(l2MembersData);
+      const l2ProposeTxHashes =
         await fetchL2TransactionHashes(l2ProposeMembersData);
 
-      setL1TransactionHashes(l1TransactionHashes);
-      setL2TransactionHashes(l2TransactionHashes);
-      setL2ProposeTransactionHashes(l2ProposeTransactionHashes);
+      // 상태 업데이트
+      setL1TransactionHashes(l1TxHashes);
+      setL2TransactionHashes(l2TxHashes);
+      setL2ProposeTransactionHashes(l2ProposeTxHashes);
 
       setBalances(balanceObj);
       setDataFetched(true); // 데이터가 성공적으로 호출됨을 표시
@@ -519,7 +417,7 @@ export default function SecurityCouncil() {
                               rel="noopener noreferrer"
                               underline="hover"
                             >
-                              {l1TransactionHash}
+                              {formatAddress(l1TransactionHash)}
                             </Link>
                           </Box>
                         ) : (
@@ -562,7 +460,7 @@ export default function SecurityCouncil() {
                               rel="noopener noreferrer"
                               underline="hover"
                             >
-                              {l2TransactionHash}
+                              {formatAddress(l2TransactionHash)}
                             </Link>
                           </Box>
                         ) : (
@@ -643,6 +541,7 @@ export default function SecurityCouncil() {
                 <TableRow
                   key={`${l1Member || ''}-${l2Member || ''}-${l2ProposeMember || ''}`}
                 >
+                  {/* L1 Security Council 멤버 */}
                   <TableCell sx={{ border: '1px solid black' }}>
                     {l1Member ? (
                       <>
@@ -661,7 +560,15 @@ export default function SecurityCouncil() {
                               marginTop: '4px',
                             }}
                           >
-                            Latest Tx: {l1TransactionHash}
+                            Latest Tx:{' '}
+                            <Link
+                              href={`https://etherscan.io/tx/${l1TransactionHash}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              underline="hover"
+                            >
+                              {formatAddress(l1TransactionHash)}
+                            </Link>
                           </Box>
                         ) : (
                           <Box
@@ -678,6 +585,7 @@ export default function SecurityCouncil() {
                     ) : null}
                   </TableCell>
 
+                  {/* L2 Security Council 멤버 */}
                   <TableCell sx={{ border: '1px solid black' }}>
                     {l2Member ? (
                       <>
@@ -703,7 +611,7 @@ export default function SecurityCouncil() {
                               rel="noopener noreferrer"
                               underline="hover"
                             >
-                              {l2TransactionHash}
+                              {formatAddress(l2TransactionHash)}
                             </Link>
                           </Box>
                         ) : (
@@ -721,6 +629,7 @@ export default function SecurityCouncil() {
                     ) : null}
                   </TableCell>
 
+                  {/* L2 Security Council Propose 멤버 */}
                   <TableCell sx={{ border: '1px solid black' }}>
                     {l2ProposeMember ? (
                       <>
@@ -854,5 +763,3 @@ After the L1 Timelock period, the upgrade is sent back to L2 via the inbox, wher
     </BoxFrame>
   );
 }
-
-*/

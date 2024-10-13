@@ -1,67 +1,81 @@
-/*
+import pLimit from 'p-limit';
 import axios from 'axios';
 import { mainnetPublicClient } from './publicClient';
 
-// 여러 개의 Arbiscan API 키를 배열로 관리
+// Multiple Etherscan API keys
 const ETHERSCAN_API_KEY: string[] = [
   '16Q6QYI56HV1PSUG888ICGMCT8UNIV8HBI',
   '1TWHEEQDRAP3PY6BX3ZH3AFQTSM3PFRWWN',
   'TWRIWAEQTDADR8AVYSSFZKSS1RPRT2SAP6',
 ];
 
-// 최신 트랜잭션 해시를 가져오는 공통 함수
-async function fetchLatestL2TransactionHash(
+// Limit the number of concurrent API calls
+const limit = pLimit(5); // 동시성 5로 제한
+
+async function delay(ms: number): Promise<void> {
+  return new Promise(resolve => {
+    setTimeout(() => resolve(), ms); // resolve만 호출, return 사용 안 함
+  });
+}
+
+async function fetchWithRetry<T>(
+  fn: () => Promise<T>,
+  retries = 2
+): Promise<T> {
+  return fn().catch(async error => {
+    if (retries <= 0) {
+      throw error;
+    }
+    console.warn(`Retrying... ${retries} attempts left`);
+    return fetchWithRetry(fn, retries - 1); // 재귀 호출로 재시도
+  });
+}
+
+// Common function to fetch the latest transaction hash
+async function fetchLatestL1TransactionHash(
   address: string,
   apiKey: string
 ): Promise<string | null> {
-  try {
-    // 최신 블록 번호 가져오기
+  return fetchWithRetry(async () => {
     const latestBlockNumber: bigint =
       await mainnetPublicClient.getBlockNumber();
-
-    // 5분 전 블록 계산 (블록은 약 12초마다 생성, 5분은 약 25 블록 전)
     const startBlockNumber = 0;
 
-    // Arbiscan API 요청 URL 생성
     const url = `https://api.etherscan.io/api?module=account&action=txlist&address=${address}&startblock=${startBlockNumber}&endblock=${latestBlockNumber}&sort=desc&apikey=${apiKey}`;
 
-    // Arbiscan API로 GET 요청
     const response = await axios.get(url);
 
-    // 응답에서 상태 확인
     if (response.data.status !== '1') {
-      console.error(`Etherscan API Error: ${response.data.message}`);
-      return null;
+      if (response.data.message === 'No transactions found') {
+        console.log(`No transactions found for address: ${address}`);
+        return 'No Transaction';
+      }
+      throw new Error(`Etherscan API Error: ${response.data.message}`);
     }
+
     const transactions = response.data.result;
-
-    // 응답에서 트랜잭션이 있는지 확인 후 가장 최근 트랜잭션 해시 반환
-    if (transactions && transactions.length > 0) {
-      return transactions[0].hash; // 가장 최근 트랜잭션 해시 반환
-    }
-    return null; // 트랜잭션이 없으면 null 반환
-  } catch (error) {
-    console.error('Error fetching transaction history from Arbiscan:', error);
-    return null;
-  }
+    return transactions.length > 0 ? transactions[0].hash : 'No Transaction';
+  });
 }
 
-// 각 API 키에 대해 별도의 함수 정의
-export async function getLatestL1TransactionHash1(
-  address: string
-): Promise<string | null> {
-  return fetchLatestL2TransactionHash(address, ETHERSCAN_API_KEY[0]);
-}
+// Optimized function to fetch transactions for multiple addresses
+export default async function getLatestL1Transactions(
+  addresses: string[]
+): Promise<(string | null)[]> {
+  // limit을 사용해 비동기 함수 배열을 생성
+  const apiFunctions = addresses.map((address, index) => {
+    const apiKey = ETHERSCAN_API_KEY[index % ETHERSCAN_API_KEY.length];
 
-export async function getLatestL1TransactionHash2(
-  address: string
-): Promise<string | null> {
-  return fetchLatestL2TransactionHash(address, ETHERSCAN_API_KEY[1]);
-}
+    // limit을 사용하여 병렬로 처리할 비동기 작업 생성 (await 제거)
+    return limit(() => {
+      return delay(500).then(() =>
+        fetchLatestL1TransactionHash(address, apiKey)
+      );
+    });
+  });
 
-export async function getLatestL1TransactionHash3(
-  address: string
-): Promise<string | null> {
-  return fetchLatestL2TransactionHash(address, ETHERSCAN_API_KEY[2]);
+  // 모든 비동기 작업을 병렬로 처리
+  const results = await Promise.all(apiFunctions);
+
+  return results;
 }
-*/

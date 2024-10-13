@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getLatestTransactionHash } from '../../publicViem/getLatestTx'; // 외부에서 가져온 트랜잭션 해시 함수
+import getLatestTransactionHash from '../../publicViem/getLatestTx';
 
 // L1_BATCH_SUBMITTER 주소 for test
 export const L1_BATCH_SUBMITTER = '0xC1b634853Cb333D3aD8663715b08f41A3Aec47cc';

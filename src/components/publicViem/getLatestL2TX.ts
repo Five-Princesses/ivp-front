@@ -1,82 +1,83 @@
-/*
+import pLimit from 'p-limit';
 import axios from 'axios';
 import { arbitrumPublicClient } from './publicClient';
 
-// 여러 개의 Arbiscan API 키를 배열로 관리
+// Multiple Arbiscan API keys
 const ARBISCAN_API_KEYS: string[] = [
   'SQ6CZVU98KD16J4D8IQWI9RR622KA6HZPW',
   '2AJZNWF8WYEF2AJX8AIJ6VMYHQKV1JIHVK',
   'SP5F5EWTVN8QK3H7ATDKGPDAE6YTPJMDKN',
   '54DD4W56FEHVJW5ZKQB88X94613YKEIUHB',
-  'ZRPRUS47RRF2YAVZHH4T94AU1ZG35C1U4Y',
-  // 네 번째 API 키
 ];
 
-// 최신 트랜잭션 해시를 가져오는 공통 함수
+// Limit the number of concurrent API calls
+const limit = pLimit(5); // 동시성 5로 제한
+
+async function delay(ms: number): Promise<void> {
+  return new Promise(resolve => {
+    setTimeout(() => resolve(), ms); // resolve만 호출, return 사용 안 함
+  });
+}
+
+// 재귀적 재시도 로직 추가
+async function fetchWithRetry<T>(
+  fn: () => Promise<T>,
+  retries = 2
+): Promise<T> {
+  return fn().catch(async error => {
+    if (retries <= 0) {
+      throw error;
+    }
+    console.warn(`Retrying... ${retries} attempts left`);
+    return fetchWithRetry(fn, retries - 1); // 재귀 호출로 재시도
+  });
+}
+
+// Common function to fetch the latest transaction hash
 async function fetchLatestL2TransactionHash(
   address: string,
   apiKey: string
 ): Promise<string | null> {
-  try {
-    // 최신 블록 번호 가져오기
+  return fetchWithRetry(async () => {
     const latestBlockNumber: bigint =
       await arbitrumPublicClient.getBlockNumber();
-
-    // 5분 전 블록 계산 (블록은 약 12초마다 생성, 5분은 약 25 블록 전)
     const startBlockNumber = 0;
 
-    // Arbiscan API 요청 URL 생성
     const url = `https://api.arbiscan.io/api?module=account&action=txlist&address=${address}&startblock=${startBlockNumber}&endblock=${latestBlockNumber}&sort=desc&apikey=${apiKey}`;
 
-    // Arbiscan API로 GET 요청
     const response = await axios.get(url);
 
-    // 응답에서 상태 확인
     if (response.data.status !== '1') {
-      console.error(`Arbiscan API Error: ${response.data.message}`);
-      return null;
+      if (response.data.message === 'No transactions found') {
+        console.log(`No transactions found for address: ${address}`);
+        return 'No Transaction';
+      }
+      throw new Error(`Arbiscan API Error: ${response.data.message}`);
     }
+
     const transactions = response.data.result;
-
-    // 응답에서 트랜잭션이 있는지 확인 후 가장 최근 트랜잭션 해시 반환
-    if (transactions && transactions.length > 0) {
-      return transactions[0].hash; // 가장 최근 트랜잭션 해시 반환
-    }
-    return null; // 트랜잭션이 없으면 null 반환
-  } catch (error) {
-    console.error('Error fetching transaction history from Arbiscan:', error);
-    return null;
-  }
+    return transactions.length > 0 ? transactions[0].hash : 'No Transaction';
+  });
 }
 
-// 각 API 키에 대해 별도의 함수 정의
-export async function getLatestL2TransactionHash1(
-  address: string
-): Promise<string | null> {
-  return fetchLatestL2TransactionHash(address, ARBISCAN_API_KEYS[0]);
-}
+// Optimized function to fetch transactions for multiple addresses
+export default async function getLatestL2Transactions(
+  addresses: string[]
+): Promise<(string | null)[]> {
+  // limit을 사용해 비동기 함수 배열을 생성
+  const apiFunctions = addresses.map((address, index) => {
+    const apiKey = ARBISCAN_API_KEYS[index % ARBISCAN_API_KEYS.length];
 
-export async function getLatestL2TransactionHash2(
-  address: string
-): Promise<string | null> {
-  return fetchLatestL2TransactionHash(address, ARBISCAN_API_KEYS[1]);
-}
+    // limit을 사용하여 병렬로 처리할 비동기 작업 생성 (await 제거)
+    return limit(() => {
+      return delay(500).then(() =>
+        fetchLatestL2TransactionHash(address, apiKey)
+      );
+    });
+  });
 
-export async function getLatestL2TransactionHash3(
-  address: string
-): Promise<string | null> {
-  return fetchLatestL2TransactionHash(address, ARBISCAN_API_KEYS[2]);
-}
+  // 모든 비동기 작업을 병렬로 처리
+  const results = await Promise.all(apiFunctions);
 
-export async function getLatestL2TransactionHash4(
-  address: string
-): Promise<string | null> {
-  return fetchLatestL2TransactionHash(address, ARBISCAN_API_KEYS[3]);
+  return results;
 }
-
-export async function getLatestL2TransactionHash5(
-  address: string
-): Promise<string | null> {
-  return fetchLatestL2TransactionHash(address, ARBISCAN_API_KEYS[4]);
-}
-*/
