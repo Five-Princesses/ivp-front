@@ -37,6 +37,10 @@ const formatBalance = (balance: bigint) => Number(balance) / 10 ** 18; // .toFix
 const formatAddress = (address: string) =>
   `${address.slice(0, 8)}...${address.slice(-6)}`;
 
+// 트랜잭션해시를 '앞에 8글자...뒤에 6글자' 형태로 축약하는 함수
+const formatTransactionHash = (txHash: string) =>
+  `${txHash.slice(0, 10)}...${txHash.slice(-8)}`;
+
 // L1/L2 주소 링크 생성 함수
 const createLink = (address: string, isL1: boolean) =>
   isL1
@@ -417,7 +421,7 @@ export default function SecurityCouncil() {
                               rel="noopener noreferrer"
                               underline="hover"
                             >
-                              {formatAddress(l1TransactionHash)}
+                              {formatTransactionHash(l1TransactionHash)}
                             </Link>
                           </Box>
                         ) : (
@@ -460,7 +464,7 @@ export default function SecurityCouncil() {
                               rel="noopener noreferrer"
                               underline="hover"
                             >
-                              {formatAddress(l2TransactionHash)}
+                              {formatTransactionHash(l2TransactionHash)}
                             </Link>
                           </Box>
                         ) : (
@@ -567,7 +571,7 @@ export default function SecurityCouncil() {
                               rel="noopener noreferrer"
                               underline="hover"
                             >
-                              {formatAddress(l1TransactionHash)}
+                              {formatTransactionHash(l1TransactionHash)}
                             </Link>
                           </Box>
                         ) : (
@@ -611,7 +615,7 @@ export default function SecurityCouncil() {
                               rel="noopener noreferrer"
                               underline="hover"
                             >
-                              {formatAddress(l2TransactionHash)}
+                              {formatTransactionHash(l2TransactionHash)}
                             </Link>
                           </Box>
                         ) : (
@@ -655,7 +659,7 @@ export default function SecurityCouncil() {
                               rel="noopener noreferrer"
                               underline="hover"
                             >
-                              {l2ProposeTransactionHash}
+                              {formatTransactionHash(l2ProposeTransactionHash)}
                             </Link>
                           </Box>
                         ) : (
