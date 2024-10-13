@@ -22,7 +22,7 @@ export const arbitrumPublicClient = createPublicClient({
     multicall: true,
   },
   chain: arbitrum,
-  transport: http(),
+  transport: http('https://arb1.arbitrum.io/rpc'),
 });
 
 export const optimismPublicClient = createPublicClient({
