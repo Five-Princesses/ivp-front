@@ -198,7 +198,7 @@ export default function SecurityCouncil() {
                 <Box
                   sx={{
                     display: 'inline-block',
-                    bgcolor: 'lightgray',
+                    border: '0.9px solid black',
                     color: 'black',
                     padding: '4px 8px',
                     borderRadius: 1,
@@ -213,7 +213,7 @@ export default function SecurityCouncil() {
                 <Box
                   sx={{
                     display: 'inline-block',
-                    bgcolor: 'lightgray',
+                    border: '0.9px solid black',
                     color: 'black',
                     padding: '4px 8px',
                     borderRadius: 1,
@@ -228,8 +228,7 @@ export default function SecurityCouncil() {
                 <Box
                   sx={{
                     display: 'inline-block',
-                    bgcolor: 'lightgray',
-                    color: 'black',
+                    border: '0.9px solid black',
                     padding: '4px 8px',
                     borderRadius: 1,
                   }}
@@ -263,7 +262,7 @@ export default function SecurityCouncil() {
                         <Box
                           sx={{
                             display: 'inline-block',
-                            bgcolor: 'lightgray',
+                            border: '0.9px solid black',
                             p: 0.5,
                             ml: 1,
                           }}
@@ -289,7 +288,7 @@ export default function SecurityCouncil() {
                         <Box
                           sx={{
                             display: 'inline-block',
-                            bgcolor: 'lightgray',
+                            border: '0.9px solid black',
                             p: 0.5,
                             ml: 1,
                           }}
@@ -315,7 +314,7 @@ export default function SecurityCouncil() {
                         <Box
                           sx={{
                             display: 'inline-block',
-                            bgcolor: 'lightgray',
+                            border: '0.9px solid black',
                             p: 0.5,
                             ml: 1,
                           }}

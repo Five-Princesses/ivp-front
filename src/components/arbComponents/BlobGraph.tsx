@@ -1,64 +1,82 @@
 import React, { useState, useEffect } from 'react';
 import {
+  Link,
+  Typography,
+  Box,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+} from '@mui/material';
+import {
   Chart,
   CategoryScale,
   LinearScale,
   BarElement,
   Tooltip,
 } from 'chart.js';
-import { Link, Typography, Box } from '@mui/material';
+
 import { Bar } from 'react-chartjs-2';
 import BoxFrame from '../common/BoxFrame';
 import ContentBox from '../common/ContentBox';
 import {
   fetchBlobDataFromTransaction,
   getBatchSubmitterLatestTxHash,
-} from './arbHook/BlobGraphHook'; // 함수 import 추가
+  L1_BATCH_SUBMITTER,
+} from './arbHook/BlobGraphHook';
 import SubtitleBox from '../common/SubtitleBox';
 import { getBalanceOnL1 } from './arbHook/SecurityCouncilHook';
 
-// Chart.js 요소 등록
+// Chart.js 플러그인 등록 (Chart.js 3 이상에서 필요)
 Chart.register(CategoryScale, LinearScale, BarElement, Tooltip);
+
+const formatBalance = (balance: bigint) => Number(balance) / 10 ** 18; // 소수점 이하 4자리로 포맷
+
+// versionedHash를 앞 8글자와 뒤 6글자로 축약하는 함수
+const formatVersionedHash = (hash: string) =>
+  `${hash.slice(0, 8)}...${hash.slice(-6)}`;
 
 export default function BlobGraph() {
   const [transactionHash, setTransactionHash] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true); // 처음부터 로딩 상태
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [blobGasUsed, setBlobGasUsed] = useState<number | null>(null);
   const [calldataGasUsed, setCalldataGasUsed] = useState<number | null>(null);
-  const [balance, setBalance] = useState<bigint | null>(null); // 잔액 상태를 bigint로 유지
-
-  const batchSubmitterAddress = '0xC1b634853Cb333D3aD8663715b08f41A3Aec47cc';
+  const [balance, setBalance] = useState<bigint | null>(null);
+  const [commitments, setCommitments] = useState<
+    { versionedHash: string; commitment: string }[]
+  >([]);
 
   // 이더리움 잔액을 가져오는 함수
   const fetchBalance = async () => {
     try {
-      const balanceResult = await getBalanceOnL1({
-        addr: batchSubmitterAddress,
-      });
-      setBalance(balanceResult); // 잔액을 wei 단위로 설정
+      const balanceResult = await getBalanceOnL1({ addr: L1_BATCH_SUBMITTER });
+      setBalance(balanceResult);
     } catch (e) {
       setBalance(null);
     }
   };
 
-  // 트랜잭션 해시를 직접 가져와 데이터를 받아오는 함수
+  // 트랜잭션 해시를 가져와 데이터를 받아오는 함수
   const fetchTransactionData = async () => {
-    setLoading(true); // 데이터 가져오는 동안 로딩 상태 표시
+    setLoading(true);
     try {
-      // 가장 최근 트랜잭션 해시를 가져옴
       const txHash = await getBatchSubmitterLatestTxHash();
       if (!txHash) {
         setError('Failed to fetch transaction hash');
         return;
       }
 
-      const blobData = await fetchBlobDataFromTransaction(txHash); // txHash를 사용해 데이터 가져옴
+      const blobData = await fetchBlobDataFromTransaction(txHash);
       if (blobData) {
         setBlobGasUsed(blobData.blobGasUsed);
         setCalldataGasUsed(blobData.blobAsCalldataGasUsed);
-        setTransactionHash(blobData.transactionHash); // 트랜잭션 해시도 설정
-        setError(null); // 오류 초기화
+        setTransactionHash(blobData.transactionHash);
+        setCommitments(blobData.commitments || []);
+        setError(null);
       } else {
         setBlobGasUsed(null);
         setCalldataGasUsed(null);
@@ -69,7 +87,7 @@ export default function BlobGraph() {
       setError('Failed to fetch transaction data');
       console.error('Error fetching transaction data:', err);
     } finally {
-      setLoading(false); // 데이터 로드 완료 후 로딩 해제
+      setLoading(false);
     }
   };
 
@@ -77,8 +95,7 @@ export default function BlobGraph() {
     fetchTransactionData();
     fetchBalance();
 
-    const interval = setInterval(fetchTransactionData, 3 * 60 * 1000); // 3분마다 데이터 갱신
-
+    const interval = setInterval(fetchTransactionData, 3 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -89,13 +106,13 @@ export default function BlobGraph() {
         {
           label: 'Blob Gas Used',
           data: [blobGasUsed],
-          backgroundColor: 'rgba(54, 162, 235, 0.5)', // 파란색
+          backgroundColor: 'rgba(54, 162, 235, 0.5)',
           hoverBackgroundColor: 'rgba(54, 162, 235, 0.8)',
         },
         {
           label: 'Blob As Calldata Gas Used',
           data: [calldataGasUsed],
-          backgroundColor: 'rgba(255, 99, 132, 0.5)', // 빨간색
+          backgroundColor: 'rgba(255, 99, 132, 0.5)',
           hoverBackgroundColor: 'rgba(255, 99, 132, 0.8)',
         },
       ],
@@ -107,7 +124,6 @@ export default function BlobGraph() {
           callbacks: {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             label(context: any) {
-              // Object shorthand used here
               return `${context.dataset.label}: ${context.raw.toLocaleString()} Gas`;
             },
           },
@@ -125,6 +141,40 @@ export default function BlobGraph() {
 
     return <Bar data={data} options={options} />;
   };
+
+  // Commitments 테이블 렌더링
+  const renderCommitmentsTable = () => (
+    <TableContainer component={Paper}>
+      <Table sx={{ borderCollapse: 'collapse' }}>
+        <TableHead>
+          <TableRow>
+            <TableCell sx={{ border: '1px solid black' }}>
+              Blob Versioned Hash
+            </TableCell>
+            <TableCell sx={{ border: '1px solid black' }}>Commitment</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {commitments.map(({ versionedHash, commitment }) => (
+            <TableRow key={versionedHash}>
+              <TableCell sx={{ border: '1px solid black' }}>
+                <Link
+                  href={`https://api.blobscan.com/blobs/${versionedHash}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {formatVersionedHash(versionedHash)}
+                </Link>
+              </TableCell>
+              <TableCell sx={{ border: '1px solid black' }}>
+                {commitment}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
 
   const renderContent = () => {
     if (loading) {
@@ -163,6 +213,7 @@ export default function BlobGraph() {
             {transactionHash}
           </Link>
           <Box mt={4}>{renderGraph()}</Box>
+          <Box mt={4}>{renderCommitmentsTable()}</Box>{' '}
         </>
       );
     }
@@ -181,26 +232,29 @@ export default function BlobGraph() {
           content={
             <>
               <Typography variant="body1">
-                Batch Submitter:{' '}
+                Address:{' '}
                 <Link
-                  href={`https://etherscan.io/address/${batchSubmitterAddress}`}
+                  href={`https://etherscan.io/address/${L1_BATCH_SUBMITTER}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   underline="hover"
                 >
-                  {batchSubmitterAddress}
+                  {L1_BATCH_SUBMITTER}
                 </Link>
               </Typography>
               <Typography variant="body1" mt={1}>
-                Batch Submitter Balance:{' '}
-                {balance !== null ? `${balance.toString()} wei` : 'Loading...'}
+                Balance:{' '}
+                {balance !== null
+                  ? `${formatBalance(balance)} ETH`
+                  : 'Loading...'}
               </Typography>
             </>
           }
         />
       </SubtitleBox>
-
-      <ContentBox content="The batch submitter is used to post L2 transactions to L1 in batches. Arbitrum One generally uses blobs to save on gas costs, but if using blob data increases gas expenses, it automatically converts to calldata." />
+      <SubtitleBox subtitle="Summary">
+        <ContentBox content="The batch submitter is used to post L2 transactions to L1 in batches. Arbitrum One generally uses blobs to save on gas costs, but if using blob data increases gas expenses, it automatically converts to calldata." />
+      </SubtitleBox>
       <ContentBox content={renderContent()} />
     </BoxFrame>
   );
