@@ -36,8 +36,6 @@ const formatBalance = (balance: bigint) => Number(balance) / 10 ** 18; // .toFix
 // Chart.js 요소 등록
 Chart.register(CategoryScale, LinearScale, BarElement, Tooltip);
 
-const formatBalance = (balance: bigint) => Number(balance) / 10 ** 18; // 소수점 이하 4자리로 포맷
-
 // versionedHash를 앞 8글자와 뒤 6글자로 축약하는 함수
 const formatVersionedHash = (hash: string) =>
   `${hash.slice(0, 8)}...${hash.slice(-6)}`;
