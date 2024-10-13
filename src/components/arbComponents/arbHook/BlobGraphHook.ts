@@ -1,4 +1,5 @@
 import axios from 'axios';
+import getLatestTransactionHash from '../../publicViem/getLatestTx';
 import { getLatestTransactionHash } from '../../publicViem/getLatestTx'; // 트랜잭션 해시 함수
 
 // Define the structure of blob data and commitment data
