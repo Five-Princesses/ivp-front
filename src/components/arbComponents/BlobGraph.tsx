@@ -30,7 +30,10 @@ import {
 import SubtitleBox from '../common/SubtitleBox';
 import { getBalanceOnL1 } from './arbHook/SecurityCouncilHook';
 
-// Chart.js 플러그인 등록 (Chart.js 3 이상에서 필요)
+// ETH 변환 함수
+const formatBalance = (balance: bigint) => Number(balance) / 10 ** 18; // .toFixed(4);
+
+// Chart.js 요소 등록
 Chart.register(CategoryScale, LinearScale, BarElement, Tooltip);
 
 const formatBalance = (balance: bigint) => Number(balance) / 10 ** 18; // 소수점 이하 4자리로 포맷
@@ -85,7 +88,6 @@ export default function BlobGraph() {
       }
     } catch (err) {
       setError('Failed to fetch transaction data');
-      console.error('Error fetching transaction data:', err);
     } finally {
       setLoading(false);
     }
