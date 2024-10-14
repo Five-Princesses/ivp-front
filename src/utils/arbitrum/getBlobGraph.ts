@@ -1,5 +1,6 @@
 import axios from 'axios';
-import getLatestTransactionHash from '../../publicViem/getLatestTx';
+import getLatestTransactionHash from './getLatestTx';
+import chainTypes from '../../constants/common/chainTypes';
 
 // Define the structure of blob data and commitment data
 interface BlobData {
@@ -13,11 +14,13 @@ interface CommitmentData {
 }
 
 // L1_BATCH_SUBMITTER 주소 for test
-export const L1_BATCH_SUBMITTER = '0xC1b634853Cb333D3aD8663715b08f41A3Aec47cc';
+export const L1_BATCH_SUBMITTER = [
+  '0xC1b634853Cb333D3aD8663715b08f41A3Aec47cc',
+];
 
 // L1_BATCH_SUBMITTER의 가장 최근 트랜잭션 해시를 가져오는 함수
 export async function getBatchSubmitterLatestTxHash() {
-  return getLatestTransactionHash(L1_BATCH_SUBMITTER);
+  return getLatestTransactionHash(L1_BATCH_SUBMITTER, chainTypes.ETHEREUM);
 }
 
 // versionedHash로부터 commitment 값을 가져오는 함수
