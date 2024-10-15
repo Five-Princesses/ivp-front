@@ -3,6 +3,7 @@ import { useRef } from 'react';
 import OptimismLogo from '../../public/assets/optimism-ethereum-op-logo.png';
 import PageHeader from '../components/common/PageHeader';
 import SecurityCouncil from '../components/optimism/SecurityCouncil';
+import BlobGraph from '../components/optimism/BlobGraph';
 import TabsManager from '../components/common/TabsManager';
 
 export default function Arbitrum({
@@ -55,6 +56,9 @@ export default function Arbitrum({
 
       {/* 본문 섹션 */}
       <Item>
+        <Box id="gas" ref={blobGraphRef}>
+          <BlobGraph />
+        </Box>
         <Box id="securitycouncil" ref={securityCouncilRef}>
           <SecurityCouncil />
         </Box>

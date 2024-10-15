@@ -25,10 +25,10 @@ import ContentBox from '../common/ContentBox';
 import {
   fetchBlobDataFromTransaction,
   getBatchSubmitterLatestTxHash,
-} from '../../utils/arbitrum/getBlobGraph';
-import { L1_BATCH_SUBMITTER } from '../../constants/arbitrum/address';
+} from '../../utils/optimism/getBlobGraph';
+import { L1_BATCH_SUBMITTER } from '../../constants/optimism/address';
 import SubtitleBox from '../common/SubtitleBox';
-import { getBalanceOnL1 } from '../../utils/getSecurityCouncil';
+import { getBalanceOnL1 } from '../../utils/optimism/getSecurityCouncil';
 
 // ETH 변환 함수
 const formatBalance = (balance: bigint) => Number(balance) / 10 ** 18; // .toFixed(4);
@@ -97,7 +97,7 @@ export default function BlobGraph() {
     fetchTransactionData();
     fetchBalance();
 
-    const interval = setInterval(fetchTransactionData, 3 * 60 * 1000);
+    const interval = setInterval(fetchTransactionData, 6 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
 

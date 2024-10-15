@@ -15,7 +15,7 @@ import {
   getMembersOfL1SecurityCouncil,
   getThresholdOfL1SecurityCouncil,
   getBalanceOnL1,
-} from '../../utils/getSecurityCouncil';
+} from '../../utils/optimism/getSecurityCouncil';
 
 import BoxFrame from '../common/BoxFrame';
 import SubtitleBox from '../common/SubtitleBox';
