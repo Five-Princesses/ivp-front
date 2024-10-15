@@ -45,9 +45,11 @@ const formatBalance = (balance: bigint) => Number(balance) / 10 ** 18; // .toFix
 const formatAddress = (address: string) =>
   `${address.slice(0, 8)}...${address.slice(-6)}`;
 
-// 트랜잭션해시를 '앞에 8글자...뒤에 6글자' 형태로 축약하는 함수
-const formatTransactionHash = (txHash: string) =>
-  `${txHash.slice(0, 10)}...${txHash.slice(-8)}`;
+// 트랜잭션 해시를 '앞에 8글자...뒤에 6글자' 형태로 축약하는 함수
+const formatTransactionHash = (txHash: string | null) =>
+  txHash && txHash !== 'No Transaction'
+    ? `${txHash.slice(0, 10)}...${txHash.slice(-8)}`
+    : null; // 'No Transaction'일 때 축약하지 않음
 
 // L1/L2 주소 링크 생성 함수
 const createLink = (address: string, isL1: boolean) =>
@@ -73,6 +75,15 @@ export default function SecurityCouncil() {
   const [l2ProposeTransactionHashes, setL2ProposeTransactionHashes] = useState<
     string[]
   >([]);
+
+  const [l1TransactionTimestamps, setL1TransactionTimestamps] = useState<
+    string[]
+  >([]);
+  const [l2TransactionTimestamps, setL2TransactionTimestamps] = useState<
+    string[]
+  >([]);
+  const [l2ProposeTransactionTimestamps, setL2ProposeTransactionTimestamps] =
+    useState<string[]>([]);
 
   // fetchData 함수
   const fetchData = async () => {
@@ -137,25 +148,30 @@ export default function SecurityCouncil() {
       // const l2ProposeTxHashes =
       //   await fetchL2TransactionHashes(l2ProposeMembersData);
 
-      const l1TxHashesTest = await getLatestTransactions(
+      const l1TxHashes = await getLatestTransactions(
         l1MembersData,
         chainTypes.ETHEREUM
       );
 
-      const l2TxHashesTest = await getLatestTransactions(
+      const l2TxHashes = await getLatestTransactions(
         l2MembersData,
         chainTypes.ARBITRUM
       );
 
-      const l2ProposeTxHashesTest = await getLatestTransactions(
+      const l2ProposeTxHashes = await getLatestTransactions(
         l2ProposeMembersData,
         chainTypes.ARBITRUM
       );
 
-      // 상태 업데이트
-      setL1TransactionHashes(l1TxHashesTest);
-      setL2TransactionHashes(l2TxHashesTest);
-      setL2ProposeTransactionHashes(l2ProposeTxHashesTest);
+      // 상태 업데이트 시 hash와 timestamp를 각각 저장
+      setL1TransactionHashes(l1TxHashes.map(tx => tx.hash));
+      setL1TransactionTimestamps(l1TxHashes.map(tx => tx.timestamp));
+      setL2TransactionHashes(l2TxHashes.map(tx => tx.hash));
+      setL2TransactionTimestamps(l2TxHashes.map(tx => tx.timestamp));
+      setL2ProposeTransactionHashes(l2ProposeTxHashes.map(tx => tx.hash));
+      setL2ProposeTransactionTimestamps(
+        l2ProposeTxHashes.map(tx => tx.timestamp)
+      );
 
       setBalances(balanceObj);
       setDataFetched(true); // 데이터가 성공적으로 호출됨을 표시
@@ -414,6 +430,8 @@ export default function SecurityCouncil() {
               const l1TransactionHash = l1TransactionHashes[index];
               const l2Member = l2Members[index];
               const l2TransactionHash = l2TransactionHashes[index];
+              const l1Timestamp = l1TransactionTimestamps[index];
+              const l2Timestamp = l2TransactionTimestamps[index];
 
               return (
                 <TableRow key={`${l1Member || ''}-${l2Member || ''}`}>
@@ -436,14 +454,24 @@ export default function SecurityCouncil() {
                             }}
                           >
                             Latest Tx:{' '}
-                            <Link
-                              href={`https://etherscan.io/tx/${l1TransactionHash}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              underline="hover"
-                            >
-                              {formatTransactionHash(l1TransactionHash)}
-                            </Link>
+                            {formatTransactionHash(l1TransactionHash) ? (
+                              <Link
+                                href={`https://etherscan.io/tx/${l1TransactionHash}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                underline="hover"
+                              >
+                                {formatTransactionHash(l1TransactionHash)}
+                              </Link>
+                            ) : (
+                              'No Transaction'
+                            )}
+                            <Box sx={{ fontSize: '10px', color: 'gray' }}>
+                              Block Timestamp:{' '}
+                              {new Date(
+                                Number(l1Timestamp) * 1000
+                              ).toUTCString()}
+                            </Box>
                           </Box>
                         ) : (
                           <Box
@@ -479,14 +507,24 @@ export default function SecurityCouncil() {
                             }}
                           >
                             Latest Tx:{' '}
-                            <Link
-                              href={`https://arbiscan.io/tx/${l2TransactionHash}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              underline="hover"
-                            >
-                              {formatTransactionHash(l2TransactionHash)}
-                            </Link>
+                            {formatTransactionHash(l2TransactionHash) ? (
+                              <Link
+                                href={`https://arbiscan.io/tx/${l2TransactionHash}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                underline="hover"
+                              >
+                                {formatTransactionHash(l2TransactionHash)}
+                              </Link>
+                            ) : (
+                              'No Transaction'
+                            )}
+                            <Box sx={{ fontSize: '10px', color: 'gray' }}>
+                              Block Timestamp:{' '}
+                              {new Date(
+                                Number(l2Timestamp) * 1000
+                              ).toUTCString()}
+                            </Box>
                           </Box>
                         ) : (
                           <Box
@@ -561,12 +599,13 @@ export default function SecurityCouncil() {
               const l2ProposeMember = l2ProposeMembers[index];
               const l2ProposeTransactionHash =
                 l2ProposeTransactionHashes[index];
+              const l1Timestamp = l1TransactionTimestamps[index];
+              const l2Timestamp = l2TransactionTimestamps[index];
 
               return (
                 <TableRow
                   key={`${l1Member || ''}-${l2Member || ''}-${l2ProposeMember || ''}`}
                 >
-                  {/* L1 Security Council 멤버 */}
                   <TableCell sx={{ border: '1px solid black' }}>
                     {l1Member ? (
                       <>
@@ -586,14 +625,24 @@ export default function SecurityCouncil() {
                             }}
                           >
                             Latest Tx:{' '}
-                            <Link
-                              href={`https://etherscan.io/tx/${l1TransactionHash}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              underline="hover"
-                            >
-                              {formatTransactionHash(l1TransactionHash)}
-                            </Link>
+                            {formatTransactionHash(l1TransactionHash) ? (
+                              <Link
+                                href={`https://etherscan.io/tx/${l1TransactionHash}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                underline="hover"
+                              >
+                                {formatTransactionHash(l1TransactionHash)}
+                              </Link>
+                            ) : (
+                              'No Transaction'
+                            )}
+                            <Box sx={{ fontSize: '10px', color: 'gray' }}>
+                              Block Timestamp:{' '}
+                              {new Date(
+                                Number(l1Timestamp) * 1000
+                              ).toUTCString()}
+                            </Box>
                           </Box>
                         ) : (
                           <Box
@@ -630,14 +679,24 @@ export default function SecurityCouncil() {
                             }}
                           >
                             Latest Tx:{' '}
-                            <Link
-                              href={`https://arbiscan.io/tx/${l2TransactionHash}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              underline="hover"
-                            >
-                              {formatTransactionHash(l2TransactionHash)}
-                            </Link>
+                            {formatTransactionHash(l2TransactionHash) ? (
+                              <Link
+                                href={`https://arbiscan.io/tx/${l2TransactionHash}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                underline="hover"
+                              >
+                                {formatTransactionHash(l2TransactionHash)}
+                              </Link>
+                            ) : (
+                              'No Transaction'
+                            )}
+                            <Box sx={{ fontSize: '10px', color: 'gray' }}>
+                              Block Timestamp:{' '}
+                              {new Date(
+                                Number(l2Timestamp) * 1000
+                              ).toUTCString()}
+                            </Box>
                           </Box>
                         ) : (
                           <Box
@@ -674,14 +733,27 @@ export default function SecurityCouncil() {
                             }}
                           >
                             Latest Tx:{' '}
-                            <Link
-                              href={`https://arbiscan.io/tx/${l2ProposeTransactionHash}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              underline="hover"
-                            >
-                              {formatTransactionHash(l2ProposeTransactionHash)}
-                            </Link>
+                            {formatTransactionHash(l2ProposeTransactionHash) ? (
+                              <Link
+                                href={`https://arbiscan.io/tx/${l2ProposeTransactionHash}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                underline="hover"
+                              >
+                                {formatTransactionHash(
+                                  l2ProposeTransactionHash
+                                )}
+                              </Link>
+                            ) : (
+                              'No Transaction'
+                            )}
+                            <Box sx={{ fontSize: '10px', color: 'gray' }}>
+                              Block Timestamp:{' '}
+                              {new Date(
+                                Number(l2ProposeTransactionTimestamps[index]) *
+                                  1000
+                              ).toUTCString()}
+                            </Box>
                           </Box>
                         ) : (
                           <Box

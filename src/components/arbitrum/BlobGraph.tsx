@@ -73,7 +73,9 @@ export default function BlobGraph() {
         return;
       }
 
-      const blobData = await fetchBlobDataFromTransaction(txHash[0]);
+      const blobData = await fetchBlobDataFromTransaction(
+        txHash.map(tx => tx.hash)[0]
+      );
       if (blobData) {
         setBlobGasUsed(blobData.blobGasUsed);
         setCalldataGasUsed(blobData.blobAsCalldataGasUsed);
@@ -83,7 +85,7 @@ export default function BlobGraph() {
       } else {
         setBlobGasUsed(null);
         setCalldataGasUsed(null);
-        setTransactionHash(txHash[0]);
+        setTransactionHash(txHash.map(tx => tx.hash)[0]);
         setError('No transactions found.');
       }
     } catch (err) {
