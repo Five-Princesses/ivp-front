@@ -32,12 +32,10 @@ export async function getThresholdOfL1SecurityCouncil(): Promise<bigint> {
     });
     return threshold as bigint;
   } catch (e) {
-    const error = e as ReadContractErrorType;
-    console.log(error.name);
-    return -1n;
+    console.error('Failed to get L1 Security Council threshold:', e);
+    throw new Error('Failed to retrieve L1 Security Council threshold');
   }
 }
-
 export async function getBalanceOnL1({
   addr,
 }: {

@@ -27,7 +27,9 @@ const formatBalance = (balance: bigint) => Number(balance) / 10 ** 18; // .toFix
 
 // 주소를 '앞에 8글자...뒤에 6글자' 형태로 축약하는 함수
 const formatAddress = (address: string) =>
-  `${address.slice(0, 8)}...${address.slice(-6)}`;
+  address.length >= 14
+    ? `${address.slice(0, 8)}...${address.slice(-6)}`
+    : address;
 
 // L1/L2 주소 링크 생성 함수
 const createLink = (address: string, isL1: boolean) =>
