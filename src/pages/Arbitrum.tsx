@@ -2,10 +2,10 @@ import { Box, Grid2, styled } from '@mui/material';
 import { useRef } from 'react';
 import ArbitrumLogo from '../../public/assets/arbitrum-arb-logo.png';
 import PageHeader from '../components/common/PageHeader';
-import SecurityCouncil from '../components/arbComponents/SecurityCouncil';
-import BlobGraph from '../components/arbComponents/BlobGraph';
-import ArbitrumStatus from '../components/arbComponents/arbitrumstatus/ArbitrumStatus';
 import TabsManager from '../components/common/TabsManager';
+import SecurityCouncil from '../components/arbitrum/SecurityCouncil';
+import BlobGraph from '../components/arbitrum/BlobGraph';
+import ArbitrumStatus from '../components/arbitrum/status/ArbitrumStatus';
 
 export default function Arbitrum({
   setCurrentPath,

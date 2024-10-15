@@ -19,12 +19,20 @@ import {
   getThresholdOfL2SecurityCouncilPropose,
   getBalanceOnL1,
   getBalanceOnL2,
+  // fetchL1TransactionHashes,
+  // fetchL2TransactionHashes,
+} from '../../utils/getSecurityCouncil';
+
+import {
   L1_SECURITY_COUNCIL_ADDRESS,
   L2_SECURITY_COUNCIL_ADDRESS,
   L2_SECURITY_COUNCIL_PROPOSE_ADDRESS,
-  fetchL1TransactionHashes,
-  fetchL2TransactionHashes,
-} from './arbHook/SecurityCouncilHook';
+} from '../../constants/arbitrum/address';
+
+import getLatestTransactions from '../../utils/arbitrum/getLatestTx';
+
+import chainTypes from '../../constants/common/chainTypes';
+
 import BoxFrame from '../common/BoxFrame';
 import SubtitleBox from '../common/SubtitleBox';
 import ContentBox from '../common/ContentBox';
@@ -123,15 +131,31 @@ export default function SecurityCouncil() {
       });
 
       // 트랜잭션 해시를 가져와서 상태 업데이트
-      const l1TxHashes = await fetchL1TransactionHashes(l1MembersData);
-      const l2TxHashes = await fetchL2TransactionHashes(l2MembersData);
-      const l2ProposeTxHashes =
-        await fetchL2TransactionHashes(l2ProposeMembersData);
+      // const l1TxHashes = await fetchL1TransactionHashes(l1MembersData);
+      // const l2TxHashes = await fetchL2TransactionHashes(l2MembersData);
+
+      // const l2ProposeTxHashes =
+      //   await fetchL2TransactionHashes(l2ProposeMembersData);
+
+      const l1TxHashesTest = await getLatestTransactions(
+        l1MembersData,
+        chainTypes.ETHEREUM
+      );
+
+      const l2TxHashesTest = await getLatestTransactions(
+        l2MembersData,
+        chainTypes.ARBITRUM
+      );
+
+      const l2ProposeTxHashesTest = await getLatestTransactions(
+        l2ProposeMembersData,
+        chainTypes.ARBITRUM
+      );
 
       // 상태 업데이트
-      setL1TransactionHashes(l1TxHashes);
-      setL2TransactionHashes(l2TxHashes);
-      setL2ProposeTransactionHashes(l2ProposeTxHashes);
+      setL1TransactionHashes(l1TxHashesTest);
+      setL2TransactionHashes(l2TxHashesTest);
+      setL2ProposeTransactionHashes(l2ProposeTxHashesTest);
 
       setBalances(balanceObj);
       setDataFetched(true); // 데이터가 성공적으로 호출됨을 표시

@@ -26,9 +26,9 @@ import {
   fetchBlobDataFromTransaction,
   getBatchSubmitterLatestTxHash,
   L1_BATCH_SUBMITTER,
-} from './arbHook/BlobGraphHook';
+} from '../../utils/arbitrum/getBlobGraph';
 import SubtitleBox from '../common/SubtitleBox';
-import { getBalanceOnL1 } from './arbHook/SecurityCouncilHook';
+import { getBalanceOnL1 } from '../../utils/getSecurityCouncil';
 
 // ETH 변환 함수
 const formatBalance = (balance: bigint) => Number(balance) / 10 ** 18; // .toFixed(4);
@@ -54,7 +54,9 @@ export default function BlobGraph() {
   // 이더리움 잔액을 가져오는 함수
   const fetchBalance = async () => {
     try {
-      const balanceResult = await getBalanceOnL1({ addr: L1_BATCH_SUBMITTER });
+      const balanceResult = await getBalanceOnL1({
+        addr: L1_BATCH_SUBMITTER[0],
+      });
       setBalance(balanceResult);
     } catch (e) {
       setBalance(null);
@@ -71,7 +73,7 @@ export default function BlobGraph() {
         return;
       }
 
-      const blobData = await fetchBlobDataFromTransaction(txHash);
+      const blobData = await fetchBlobDataFromTransaction(txHash[0]);
       if (blobData) {
         setBlobGasUsed(blobData.blobGasUsed);
         setCalldataGasUsed(blobData.blobAsCalldataGasUsed);
@@ -81,7 +83,7 @@ export default function BlobGraph() {
       } else {
         setBlobGasUsed(null);
         setCalldataGasUsed(null);
-        setTransactionHash(txHash);
+        setTransactionHash(txHash[0]);
         setError('No transactions found.');
       }
     } catch (err) {
