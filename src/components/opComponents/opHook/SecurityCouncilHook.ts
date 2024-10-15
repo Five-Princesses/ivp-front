@@ -2,6 +2,7 @@ import { ReadContractErrorType } from 'viem';
 import {
   mainnetPublicClient,
   arbitrumPublicClient,
+<<<<<<<< HEAD:src/components/opComponents/opHook/SecurityCouncilHook.ts
 <<<<<<< HEAD
 } from './common/publicClient';
 
@@ -83,15 +84,22 @@ const getThresholdABI = [
 ];
 <<<<<<< HEAD
 ========
+========
+} from './common/publicClient';
+
+>>>>>>>> 835ca47 (refactor: refactoring code (#21)):src/utils/getSecurityCouncil.ts
 import { getOwners, getThreshold } from '../constants/arbitrum/abi';
 import {
   L1_SECURITY_COUNCIL_ADDRESS,
   L2_SECURITY_COUNCIL_ADDRESS,
   L2_SECURITY_COUNCIL_PROPOSE_ADDRESS,
 } from '../constants/arbitrum/address';
+<<<<<<<< HEAD:src/components/opComponents/opHook/SecurityCouncilHook.ts
 >>>>>>>> 835ca47 (refactor: refactoring code (#21)):src/utils/getSecurityCouncil.ts
 =======
 >>>>>>> 18a2afd (feat : optimism)
+========
+>>>>>>>> 835ca47 (refactor: refactoring code (#21)):src/utils/getSecurityCouncil.ts
 
 // ===================================Layer 1==========================================
 // ====================================================================================
@@ -101,6 +109,7 @@ export async function getMembersOfL1SecurityCouncil(): Promise<string[]> {
   try {
     const members = await mainnetPublicClient.readContract({
       address: L1_SECURITY_COUNCIL_ADDRESS,
+<<<<<<<< HEAD:src/components/opComponents/opHook/SecurityCouncilHook.ts
 <<<<<<< HEAD
       abi: getOwners,
       functionName: 'getOwners',
@@ -112,14 +121,21 @@ export async function getMembersOfL1SecurityCouncil(): Promise<string[]> {
     return [];
 =======
       abi: getOwnersABI,
+========
+      abi: getOwners,
+>>>>>>>> 835ca47 (refactor: refactoring code (#21)):src/utils/getSecurityCouncil.ts
       functionName: 'getOwners',
     });
-    return members as string[]; // 반환 타입을 string[]로 변환
+    return members as string[];
   } catch (e) {
     const error = e as ReadContractErrorType;
     console.log(error.name);
+<<<<<<<< HEAD:src/components/opComponents/opHook/SecurityCouncilHook.ts
     return []; // 에러 발생 시 빈 배열 반환
 >>>>>>> 18a2afd (feat : optimism)
+========
+    return [];
+>>>>>>>> 835ca47 (refactor: refactoring code (#21)):src/utils/getSecurityCouncil.ts
   }
 }
 
@@ -127,11 +143,15 @@ export async function getThresholdOfL1SecurityCouncil(): Promise<bigint> {
   try {
     const threshold = await mainnetPublicClient.readContract({
       address: L1_SECURITY_COUNCIL_ADDRESS,
+<<<<<<<< HEAD:src/components/opComponents/opHook/SecurityCouncilHook.ts
 <<<<<<< HEAD
       abi: getThreshold,
 =======
       abi: getThresholdABI,
 >>>>>>> 18a2afd (feat : optimism)
+========
+      abi: getThreshold,
+>>>>>>>> 835ca47 (refactor: refactoring code (#21)):src/utils/getSecurityCouncil.ts
       functionName: 'getThreshold',
     });
     return threshold as bigint;
