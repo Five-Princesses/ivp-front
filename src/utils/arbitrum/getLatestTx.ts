@@ -1,15 +1,24 @@
 import pLimit from 'p-limit';
 import axios from 'axios';
-import { mainnetPublicClient } from './publicClient';
+import apiUrls from '../../constants/common/url';
+import chainTypes from '../../constants/common/chainTypes';
+import { mainnetPublicClient } from '../common/publicClient';
 
-// Multiple Etherscan API keys
 const ETHERSCAN_API_KEY: string[] = [
-  '16Q6QYI56HV1PSUG888ICGMCT8UNIV8HBI',
-  '1TWHEEQDRAP3PY6BX3ZH3AFQTSM3PFRWWN',
-  'TWRIWAEQTDADR8AVYSSFZKSS1RPRT2SAP6',
+  import.meta.env.VITE_ETHERSCAN_API_KEY1,
+  import.meta.env.VITE_ETHERSCAN_API_KEY2,
+  import.meta.env.VITE_ETHERSCAN_API_KEY3,
 ];
 
-// Limit the number of concurrent API calls
+// Multiple Arbiscan API keys
+const ARBISCAN_API_KEYS: string[] = [
+  import.meta.env.VITE_ARBISCAN_API_KEYS1,
+  import.meta.env.VITE_ARBISCAN_API_KEYS2,
+  import.meta.env.VITE_ARBISCAN_API_KEYS3,
+  import.meta.env.VITE_ARBISCAN_API_KEYS4,
+  import.meta.env.VITE_ARBISCAN_API_KEYS5,
+];
+
 const limit = pLimit(5); // 동시성 5로 제한
 
 async function delay(ms: number): Promise<void> {
@@ -31,17 +40,32 @@ async function fetchWithRetry<T>(
   });
 }
 
-// Common function to fetch the latest transaction hash
-async function fetchLatestL1TransactionHash(
+async function fetchLatestTransactionHash(
   address: string,
-  apiKey: string
+  apiKey: string,
+  flag: number
 ): Promise<string | null> {
   return fetchWithRetry(async () => {
+    const startBlockNumber: bigint = 0n; // 항상 0이면?
     const latestBlockNumber: bigint =
       await mainnetPublicClient.getBlockNumber();
-    const startBlockNumber = 0;
 
-    const url = `https://api.etherscan.io/api?module=account&action=txlist&address=${address}&startblock=${startBlockNumber}&endblock=${latestBlockNumber}&sort=desc&apikey=${apiKey}`;
+    let url = '';
+    if (flag === chainTypes.ETHEREUM) {
+      url = apiUrls.etherscanUrl(
+        address,
+        startBlockNumber,
+        latestBlockNumber,
+        apiKey
+      );
+    } else if (flag === chainTypes.ARBITRUM) {
+      url = apiUrls.arbiscanUrl(
+        address,
+        startBlockNumber,
+        latestBlockNumber,
+        apiKey
+      );
+    }
 
     const response = await axios.get(url);
 
@@ -58,18 +82,28 @@ async function fetchLatestL1TransactionHash(
   });
 }
 
-// Optimized function to fetch transactions for multiple addresses
-export default async function getLatestL1Transactions(
-  addresses: string[]
-): Promise<(string | null)[]> {
+export default async function getLatestTransactions(
+  addresses: string[],
+  flag: number
+): Promise<string[]> {
   // limit을 사용해 비동기 함수 배열을 생성
   const apiFunctions = addresses.map((address, index) => {
-    const apiKey = ETHERSCAN_API_KEY[index % ETHERSCAN_API_KEY.length];
+    let apiKey = '';
+    switch (flag) {
+      case chainTypes.ETHEREUM:
+        apiKey = ETHERSCAN_API_KEY[index % ETHERSCAN_API_KEY.length];
+        break;
+      case chainTypes.ARBITRUM:
+        apiKey = ARBISCAN_API_KEYS[index % ARBISCAN_API_KEYS.length];
+        break;
+      default:
+        break;
+    }
 
     // limit을 사용하여 병렬로 처리할 비동기 작업 생성 (await 제거)
     return limit(() => {
       return delay(500).then(() =>
-        fetchLatestL1TransactionHash(address, apiKey)
+        fetchLatestTransactionHash(address, apiKey, flag)
       );
     });
   });
@@ -77,5 +111,5 @@ export default async function getLatestL1Transactions(
   // 모든 비동기 작업을 병렬로 처리
   const results = await Promise.all(apiFunctions);
 
-  return results;
+  return results.map(hash => hash || 'No Transaction');
 }
