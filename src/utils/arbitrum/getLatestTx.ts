@@ -2,7 +2,10 @@ import pLimit from 'p-limit';
 import axios from 'axios';
 import apiUrls from '../../constants/common/url';
 import chainTypes from '../../constants/common/chainTypes';
-import { mainnetPublicClient } from '../common/publicClient';
+import {
+  arbitrumPublicClient,
+  mainnetPublicClient,
+} from '../common/publicClient';
 
 const ETHERSCAN_API_KEY: string[] = [
   import.meta.env.VITE_ETHERSCAN_API_KEY1,
@@ -44,14 +47,14 @@ async function fetchLatestTransactionHash(
   address: string,
   apiKey: string,
   flag: number
-): Promise<string | null> {
+): Promise<{ hash: string | null; timestamp: string | null }> {
   return fetchWithRetry(async () => {
     const startBlockNumber: bigint = 0n; // 항상 0이면?
-    const latestBlockNumber: bigint =
-      await mainnetPublicClient.getBlockNumber();
 
     let url = '';
     if (flag === chainTypes.ETHEREUM) {
+      const latestBlockNumber: bigint =
+        await mainnetPublicClient.getBlockNumber();
       url = apiUrls.etherscanUrl(
         address,
         startBlockNumber,
@@ -59,6 +62,8 @@ async function fetchLatestTransactionHash(
         apiKey
       );
     } else if (flag === chainTypes.ARBITRUM) {
+      const latestBlockNumber: bigint =
+        await arbitrumPublicClient.getBlockNumber();
       url = apiUrls.arbiscanUrl(
         address,
         startBlockNumber,
@@ -72,20 +77,28 @@ async function fetchLatestTransactionHash(
     if (response.data.status !== '1') {
       if (response.data.message === 'No transactions found') {
         console.log(`No transactions found for address: ${address}`);
-        return null;
+        return { hash: null, timestamp: null };
       }
       throw new Error(`Etherscan API Error: ${response.data.message}`);
     }
 
     const transactions = response.data.result;
-    return transactions.length > 0 ? transactions[0].hash : null;
+    if (transactions.length > 0) {
+      const latestTransaction = transactions[0];
+      return {
+        hash: latestTransaction.hash,
+        timestamp: latestTransaction.timeStamp,
+      };
+    }
+
+    return { hash: null, timestamp: null };
   });
 }
 
 export default async function getLatestTransactions(
   addresses: string[],
   flag: number
-): Promise<string[]> {
+): Promise<{ hash: string; timestamp: string }[]> {
   // limit을 사용해 비동기 함수 배열을 생성
   const apiFunctions = addresses.map((address, index) => {
     let apiKey = '';
@@ -111,5 +124,8 @@ export default async function getLatestTransactions(
   // 모든 비동기 작업을 병렬로 처리
   const results = await Promise.all(apiFunctions);
 
-  return results.map(hash => hash || 'No Transaction');
+  return results.map(data => ({
+    hash: data?.hash || 'No Transaction',
+    timestamp: data?.timestamp || 'No Transaction',
+  }));
 }
