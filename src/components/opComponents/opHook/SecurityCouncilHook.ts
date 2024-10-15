@@ -2,8 +2,9 @@ import { ReadContractErrorType } from 'viem';
 import {
   mainnetPublicClient,
   arbitrumPublicClient,
-} from '../../publicViem/publicClient';
+} from './common/publicClient';
 
+<<<<<<<< HEAD:src/components/opComponents/opHook/SecurityCouncilHook.ts
 // ==================================getLatestTx==========================================
 
 import getLatestL1Transactions from '../../publicViem/getLatestL1TX'; // Fetch optimized functions
@@ -73,6 +74,14 @@ const getThresholdABI = [
     type: 'function',
   },
 ];
+========
+import { getOwners, getThreshold } from '../constants/arbitrum/abi';
+import {
+  L1_SECURITY_COUNCIL_ADDRESS,
+  L2_SECURITY_COUNCIL_ADDRESS,
+  L2_SECURITY_COUNCIL_PROPOSE_ADDRESS,
+} from '../constants/arbitrum/address';
+>>>>>>>> 835ca47 (refactor: refactoring code (#21)):src/utils/getSecurityCouncil.ts
 
 // ===================================Layer 1==========================================
 // ====================================================================================
@@ -82,14 +91,14 @@ export async function getMembersOfL1SecurityCouncil(): Promise<string[]> {
   try {
     const members = await mainnetPublicClient.readContract({
       address: L1_SECURITY_COUNCIL_ADDRESS,
-      abi: getOwnersABI,
+      abi: getOwners,
       functionName: 'getOwners',
     });
-    return members as string[]; // 반환 타입을 string[]로 변환
+    return members as string[];
   } catch (e) {
     const error = e as ReadContractErrorType;
     console.log(error.name);
-    return []; // 에러 발생 시 빈 배열 반환
+    return [];
   }
 }
 
@@ -97,7 +106,7 @@ export async function getThresholdOfL1SecurityCouncil(): Promise<bigint> {
   try {
     const threshold = await mainnetPublicClient.readContract({
       address: L1_SECURITY_COUNCIL_ADDRESS,
-      abi: getThresholdABI,
+      abi: getThreshold,
       functionName: 'getThreshold',
     });
     return threshold as bigint;
@@ -129,6 +138,7 @@ export async function getBalanceOnL1({
 // ====================================================================================
 // ====================================================================================
 // ====================================================================================
+<<<<<<<< HEAD:src/components/opComponents/opHook/SecurityCouncilHook.ts
 // export async function getMembersOfL2SecurityCouncil(): Promise<string[]> {
 //   try {
 //     const members = await arbitrumPublicClient.readContract({
@@ -190,6 +200,69 @@ export async function getBalanceOnL1({
 //     return -1n;
 //   }
 // }
+========
+export async function getMembersOfL2SecurityCouncil(): Promise<string[]> {
+  try {
+    const members = await arbitrumPublicClient.readContract({
+      address: L2_SECURITY_COUNCIL_ADDRESS,
+      abi: getOwners,
+      functionName: 'getOwners',
+    });
+    return members as string[];
+  } catch (e) {
+    const error = e as ReadContractErrorType;
+    console.log(error.name);
+    return [];
+  }
+}
+
+export async function getThresholdOfL2SecurityCouncil(): Promise<bigint> {
+  try {
+    const threshold = await arbitrumPublicClient.readContract({
+      address: L2_SECURITY_COUNCIL_ADDRESS,
+      abi: getThreshold,
+      functionName: 'getThreshold',
+    });
+    return threshold as bigint;
+  } catch (e) {
+    const error = e as ReadContractErrorType;
+    console.log(error.name);
+    return -1n;
+  }
+}
+
+export async function getMembersOfL2SecurityCouncilPropose(): Promise<
+  string[]
+> {
+  try {
+    const members = await arbitrumPublicClient.readContract({
+      address: L2_SECURITY_COUNCIL_PROPOSE_ADDRESS,
+      abi: getOwners,
+      functionName: 'getOwners',
+    });
+    return members as string[]; // 반환 타입을 string[]로 변환
+  } catch (e) {
+    const error = e as ReadContractErrorType;
+    console.log(error.name);
+    return []; // 에러 발생 시 빈 배열 반환
+  }
+}
+
+export async function getThresholdOfL2SecurityCouncilPropose(): Promise<bigint> {
+  try {
+    const threshold = await arbitrumPublicClient.readContract({
+      address: L2_SECURITY_COUNCIL_PROPOSE_ADDRESS,
+      abi: getThreshold,
+      functionName: 'getThreshold',
+    });
+    return threshold as bigint;
+  } catch (e) {
+    const error = e as ReadContractErrorType;
+    console.log(error.name);
+    return -1n;
+  }
+}
+>>>>>>>> 835ca47 (refactor: refactoring code (#21)):src/utils/getSecurityCouncil.ts
 
 export async function getBalanceOnL2({
   addr,
