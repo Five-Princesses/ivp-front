@@ -288,9 +288,7 @@ export default function SecurityCouncil() {
                             ml: 1,
                           }}
                         >
-                          {balances[`L1-${l1Member}`]
-                            ? `${balances[`L1-${l1Member}`]} ETH`
-                            : 'N/A'}
+                          {`${balances[`L1-${l1Member}`]} ETH`}
                         </Box>
                       </>
                     ) : null}
@@ -314,9 +312,7 @@ export default function SecurityCouncil() {
                             ml: 1,
                           }}
                         >
-                          {balances[`L2-${l2Member}`]
-                            ? `${balances[`L2-${l2Member}`]} ETH`
-                            : 'N/A'}
+                          {`${balances[`L2-${l2Member}`]} ETH`}
                         </Box>
                       </>
                     ) : null}
@@ -340,9 +336,7 @@ export default function SecurityCouncil() {
                             ml: 1,
                           }}
                         >
-                          {balances[`L2Propose-${l2ProposeMember}`]
-                            ? `${balances[`L2Propose-${l2ProposeMember}`]} ETH`
-                            : 'N/A'}
+                          {`${balances[`L2Propose-${l2ProposeMember}`]} ETH`}
                         </Box>
                       </>
                     ) : null}
