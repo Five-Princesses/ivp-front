@@ -733,14 +733,16 @@ export default function SecurityCouncil() {
                             }}
                           >
                             Latest Tx:{' '}
-                            {formatTransactionHash(l2TransactionHash) ? (
+                            {formatTransactionHash(l2ProposeTransactionHash) ? (
                               <Link
-                                href={`https://arbiscan.io/tx/${l2TransactionHash}`}
+                                href={`https://arbiscan.io/tx/${l2ProposeTransactionHash}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 underline="hover"
                               >
-                                {formatTransactionHash(l2TransactionHash)}
+                                {formatTransactionHash(
+                                  l2ProposeTransactionHash
+                                )}
                               </Link>
                             ) : (
                               'No Transaction'
@@ -748,7 +750,8 @@ export default function SecurityCouncil() {
                             <Box sx={{ fontSize: '10px', color: 'gray' }}>
                               Block Timestamp:{' '}
                               {new Date(
-                                Number(l2ProposeTransactionTimestamps) * 1000
+                                Number(l2ProposeTransactionTimestamps[index]) *
+                                  1000
                               ).toUTCString()}
                             </Box>
                           </Box>
