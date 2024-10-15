@@ -2,7 +2,7 @@ import { Box, Grid2, styled } from '@mui/material';
 import { useRef } from 'react';
 import OptimismLogo from '../../public/assets/optimism-ethereum-op-logo.png';
 import PageHeader from '../components/common/PageHeader';
-import SecurityCouncil from '../components/opComponents/SecurityCouncil';
+import SecurityCouncil from '../components/optimism/SecurityCouncil';
 import TabsManager from '../components/common/TabsManager';
 
 export default function Arbitrum({
@@ -12,6 +12,8 @@ export default function Arbitrum({
 }) {
   const headerRef = useRef<HTMLDivElement>(null);
   const securityCouncilRef = useRef<HTMLDivElement>(null);
+  const statusRef = useRef<HTMLDivElement>(null);
+  const blobGraphRef = useRef<HTMLDivElement>(null);
 
   const Item = styled(Box)(({ theme }) => ({
     backgroundColor: '#fff',
@@ -44,6 +46,8 @@ export default function Arbitrum({
         <TabsManager
           sectionsRef={{
             header: headerRef,
+            status: statusRef,
+            gas: blobGraphRef,
             securitycouncil: securityCouncilRef,
           }}
         />

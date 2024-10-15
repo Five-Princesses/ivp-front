@@ -10,12 +10,13 @@ import {
   Paper,
   Link,
 } from '@mui/material';
+import { L1_SECURITY_COUNCIL_ADDRESS } from '../../constants/optimism/address';
 import {
   getMembersOfL1SecurityCouncil,
   getThresholdOfL1SecurityCouncil,
   getBalanceOnL1,
-  L1_SECURITY_COUNCIL_ADDRESS,
-} from './opHook/SecurityCouncilHook';
+} from '../../utils/getSecurityCouncil';
+
 import BoxFrame from '../common/BoxFrame';
 import SubtitleBox from '../common/SubtitleBox';
 import ContentBox from '../common/ContentBox';
