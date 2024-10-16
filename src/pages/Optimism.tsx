@@ -6,7 +6,7 @@ import SecurityCouncil from '../components/optimism/SecurityCouncil';
 import BlobGraph from '../components/optimism/BlobGraph';
 import TabsManager from '../components/common/TabsManager';
 
-export default function Arbitrum({
+export default function Optimism({
   setCurrentPath,
 }: {
   setCurrentPath: (path: string) => void;
