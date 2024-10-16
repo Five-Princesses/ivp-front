@@ -144,7 +144,6 @@ export default function SecurityCouncil() {
       // 트랜잭션 해시를 가져와서 상태 업데이트
       // const l1TxHashes = await fetchL1TransactionHashes(l1MembersData);
       // const l2TxHashes = await fetchL2TransactionHashes(l2MembersData);
-
       // const l2ProposeTxHashes =
       //   await fetchL2TransactionHashes(l2ProposeMembersData);
 
@@ -328,9 +327,7 @@ export default function SecurityCouncil() {
                             ml: 1,
                           }}
                         >
-                          {balances[`L1-${l1Member}`]
-                            ? `${balances[`L1-${l1Member}`]} ETH`
-                            : 'N/A'}
+                          {`${balances[`L1-${l1Member}`]} ETH`}
                         </Box>
                       </>
                     ) : null}
@@ -354,9 +351,7 @@ export default function SecurityCouncil() {
                             ml: 1,
                           }}
                         >
-                          {balances[`L2-${l2Member}`]
-                            ? `${balances[`L2-${l2Member}`]} ETH`
-                            : 'N/A'}
+                          {`${balances[`L2-${l2Member}`]} ETH`}
                         </Box>
                       </>
                     ) : null}
@@ -380,9 +375,7 @@ export default function SecurityCouncil() {
                             ml: 1,
                           }}
                         >
-                          {balances[`L2Propose-${l2ProposeMember}`]
-                            ? `${balances[`L2Propose-${l2ProposeMember}`]} ETH`
-                            : 'N/A'}
+                          {`${balances[`L2Propose-${l2ProposeMember}`]} ETH`}
                         </Box>
                       </>
                     ) : null}
