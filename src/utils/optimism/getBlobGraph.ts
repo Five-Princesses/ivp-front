@@ -1,7 +1,7 @@
 import axios from 'axios';
 import getLatestTransactionHash from './getLatestTx';
 import chainTypes from '../../constants/common/chainTypes';
-import { L1_BATCH_SUBMITTER } from '../../constants/arbitrum/address';
+import { L1_BATCH_SUBMITTER } from '../../constants/optimism/address';
 
 // Define the structure of blob data and commitment data
 interface BlobData {
