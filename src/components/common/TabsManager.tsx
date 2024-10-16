@@ -22,7 +22,6 @@ function TabsManager({ sectionsRef, tabs }: TabsManagerProps) {
     // `throttle` 적용하여 `handleScroll` 함수를 제한
     const handleScroll = throttle(() => {
       const scrollPosition = window.scrollY + headerHeight;
-      console.log('Scroll Position:', scrollPosition);
 
       const sections = Object.keys(sectionsRef)
         .filter(key => key !== 'header')
@@ -68,7 +67,6 @@ function TabsManager({ sectionsRef, tabs }: TabsManagerProps) {
   // 탭 변경 시 스크롤 이동 처리
   const handleChange = useCallback(
     (_event: React.SyntheticEvent, newValue: string) => {
-      console.log(newValue);
       setValue(newValue);
 
       const targetSection = sectionsRef[newValue as keyof typeof sectionsRef];

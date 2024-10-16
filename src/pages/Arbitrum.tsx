@@ -5,7 +5,7 @@ import PageHeader from '../components/common/PageHeader';
 import TabsManager from '../components/common/TabsManager';
 import SecurityCouncil from '../components/arbitrum/SecurityCouncil';
 import BlobGraph from '../components/arbitrum/BlobGraph';
-import ArbitrumStatus from '../components/arbitrum/status/ArbitrumStatus';
+import ArbitrumStatus from '../components/arbitrum/ArbitrumStatus';
 import SequenserFeed from '../components/arbitrum/SequenserFeed';
 
 export default function Arbitrum({
