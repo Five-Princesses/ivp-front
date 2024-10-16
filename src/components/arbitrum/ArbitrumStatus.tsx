@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Grid, Typography, Skeleton } from '@mui/material';
 import axios from 'axios';
-import BoxFrame from '../../common/BoxFrame';
-import SubtitleBox from '../../common/SubtitleBox';
-import ContentBox from '../../common/ContentBox';
-import CustomAccordion from '../../common/CustomAccordion';
+import BoxFrame from '../common/BoxFrame';
+import SubtitleBox from '../common/SubtitleBox';
+import ContentBox from '../common/ContentBox';
+import CustomAccordion from '../common/CustomAccordion';
 import {
   ComponentStatus,
   IArbitrumStatus,
   IComponent,
-} from '../../../utils/common/types';
-import StatusCard from './StatusCard';
+} from '../../utils/common/types';
+import StatusCard from './status/StatusCard';
 
 // 컴포넌트 상태에 따른 색상을 반환하는 함수
 const getStatusColor = (status: ComponentStatus) => {

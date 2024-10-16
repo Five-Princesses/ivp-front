@@ -16,6 +16,12 @@ export default function Optimism({
   const statusRef = useRef<HTMLDivElement>(null);
   const blobGraphRef = useRef<HTMLDivElement>(null);
 
+  const tabs = [
+    { value: 'status', label: 'Optimism Status' },
+    { value: 'gas', label: 'Gas Used' },
+    { value: 'securitycouncil', label: 'Security Council' },
+  ];
+
   const Item = styled(Box)(({ theme }) => ({
     backgroundColor: '#fff',
     ...theme.typography.body2,
@@ -51,6 +57,7 @@ export default function Optimism({
             gas: blobGraphRef,
             securitycouncil: securityCouncilRef,
           }}
+          tabs={tabs}
         />
       </Item>
 
