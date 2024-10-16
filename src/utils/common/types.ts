@@ -22,3 +22,16 @@ export interface IComponent {
 export interface IArbitrumStatus {
   components: IComponent[];
 }
+
+export interface TabItem {
+  value: string;
+  label: string;
+}
+
+export interface TabsManagerProps {
+  sectionsRef: {
+    header: React.RefObject<HTMLDivElement>;
+    [key: string]: React.RefObject<HTMLDivElement>;
+  };
+  tabs: TabItem[];
+}
