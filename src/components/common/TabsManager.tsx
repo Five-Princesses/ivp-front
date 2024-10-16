@@ -1,17 +1,9 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { Tab, Tabs } from '@mui/material';
 import { throttle } from 'lodash';
+import { TabsManagerProps } from '../../utils/common/types';
 
-interface TabsManagerProps {
-  sectionsRef: {
-    header: React.RefObject<HTMLDivElement>;
-    status: React.RefObject<HTMLDivElement>;
-    gas: React.RefObject<HTMLDivElement>;
-    securitycouncil: React.RefObject<HTMLDivElement>;
-  };
-}
-
-function TabsManager({ sectionsRef }: TabsManagerProps) {
+function TabsManager({ sectionsRef, tabs }: TabsManagerProps) {
   const [value, setValue] = useState<string>('status');
   const tabsRef = useRef<HTMLDivElement>(null);
   const [headerHeight, setHeaderHeight] = useState<number>(0);
@@ -94,9 +86,9 @@ function TabsManager({ sectionsRef }: TabsManagerProps) {
   return (
     <div ref={tabsRef}>
       <Tabs value={value} onChange={handleChange}>
-        <Tab value="status" label="Arbitrum Status" />
-        <Tab value="gas" label="Gas Used" />
-        <Tab value="securitycouncil" label="Security Council" />
+        {tabs.map(tab => (
+          <Tab value={tab.value} label={tab.label} />
+        ))}
       </Tabs>
     </div>
   );
