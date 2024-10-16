@@ -1,28 +1,68 @@
-import { Box } from '@mui/material';
+import { Box, Grid2, styled } from '@mui/material';
+import { useRef } from 'react';
+import OptimismLogo from '../../public/assets/optimism-ethereum-op-logo.png';
 import PageHeader from '../components/common/PageHeader';
-import OptimizmLogo from '../../public/assets/optimism-ethereum-op-logo.png';
+import SecurityCouncil from '../components/optimism/SecurityCouncil';
+import BlobGraph from '../components/optimism/BlobGraph';
+import TabsManager from '../components/common/TabsManager';
 
-function Optimism({
+export default function Optimism({
   setCurrentPath,
 }: {
   setCurrentPath: (path: string) => void;
 }) {
+  const headerRef = useRef<HTMLDivElement>(null);
+  const securityCouncilRef = useRef<HTMLDivElement>(null);
+  const statusRef = useRef<HTMLDivElement>(null);
+  const blobGraphRef = useRef<HTMLDivElement>(null);
+
+  const Item = styled(Box)(({ theme }) => ({
+    backgroundColor: '#fff',
+    ...theme.typography.body2,
+    padding: theme.spacing(1),
+    color: theme.palette.text.secondary,
+    ...theme.applyStyles('dark', {
+      backgroundColor: '#1A2027',
+    }),
+  }));
+
   return (
-    <Box
+    <Grid2
       sx={{
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
         padding: '16px',
+        overflow: 'visible',
       }}
     >
-      <PageHeader
-        setCurrentPath={setCurrentPath}
-        logo={OptimizmLogo}
-        name="Optimism"
-      />
-    </Box>
+      {/* 헤더 섹션 */}
+      <Item ref={headerRef} sx={{ position: 'sticky', top: 65, zIndex: 10 }}>
+        <PageHeader
+          setCurrentPath={setCurrentPath}
+          logo={OptimismLogo}
+          name="Optimism"
+        />
+        {/* 각 섹션의 ref를 TabsManager에 전달 */}
+        <TabsManager
+          sectionsRef={{
+            header: headerRef,
+            status: statusRef,
+            gas: blobGraphRef,
+            securitycouncil: securityCouncilRef,
+          }}
+        />
+      </Item>
+
+      {/* 본문 섹션 */}
+      <Item>
+        <Box id="gas" ref={blobGraphRef}>
+          <BlobGraph />
+        </Box>
+        <Box id="securitycouncil" ref={securityCouncilRef}>
+          <SecurityCouncil />
+        </Box>
+      </Item>
+    </Grid2>
   );
 }
-
-export default Optimism;
