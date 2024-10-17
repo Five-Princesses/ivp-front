@@ -1,6 +1,6 @@
 import pLimit from 'p-limit';
 import axios from 'axios';
-import apiUrls from '../../constants/common/url';
+import { apiUrls } from '../../constants/common/url';
 import chainTypes from '../../constants/common/chainTypes';
 import { mainnetPublicClient } from '../common/publicClient';
 
@@ -52,14 +52,14 @@ async function fetchLatestTransactionHash(
 
     let url = '';
     if (flag === chainTypes.ETHEREUM) {
-      url = apiUrls.etherscanUrl(
+      url = apiUrls.getEtherTxUrl(
         address,
         startBlockNumber,
         latestBlockNumber,
         apiKey
       );
     } else if (flag === chainTypes.ARBITRUM) {
-      url = apiUrls.arbiscanUrl(
+      url = apiUrls.getArbiTxUrl(
         address,
         startBlockNumber,
         latestBlockNumber,
