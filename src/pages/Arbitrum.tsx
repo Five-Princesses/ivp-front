@@ -5,7 +5,8 @@ import PageHeader from '../components/common/PageHeader';
 import TabsManager from '../components/common/TabsManager';
 import SecurityCouncil from '../components/arbitrum/SecurityCouncil';
 import BlobGraph from '../components/arbitrum/BlobGraph';
-import ArbitrumStatus from '../components/arbitrum/status/ArbitrumStatus';
+import ArbitrumStatus from '../components/arbitrum/ArbitrumStatus';
+import SequenserFeed from '../components/arbitrum/SequenserFeed';
 
 export default function Arbitrum({
   setCurrentPath,
@@ -16,6 +17,14 @@ export default function Arbitrum({
   const securityCouncilRef = useRef<HTMLDivElement>(null);
   const statusRef = useRef<HTMLDivElement>(null);
   const blobGraphRef = useRef<HTMLDivElement>(null);
+  const sequencerFeedRef = useRef<HTMLDivElement>(null);
+
+  const tabs = [
+    { value: 'status', label: 'Arbitrum Status' },
+    { value: 'gas', label: 'Gas Used' },
+    { value: 'sequencerfeed', label: 'Sequencer Feed' },
+    { value: 'securitycouncil', label: 'Security Council' },
+  ];
 
   const Item = styled(Box)(({ theme }) => ({
     backgroundColor: '#fff',
@@ -50,8 +59,10 @@ export default function Arbitrum({
             header: headerRef,
             status: statusRef,
             gas: blobGraphRef,
+            sequencerfeed: sequencerFeedRef,
             securitycouncil: securityCouncilRef,
           }}
+          tabs={tabs}
         />
       </Item>
 
@@ -62,6 +73,9 @@ export default function Arbitrum({
         </Box>
         <Box id="gas" ref={blobGraphRef}>
           <BlobGraph />
+        </Box>
+        <Box id="sequencerfeed" ref={sequencerFeedRef}>
+          <SequenserFeed />
         </Box>
         <Box id="securitycouncil" ref={securityCouncilRef}>
           <SecurityCouncil />

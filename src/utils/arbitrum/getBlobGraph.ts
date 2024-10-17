@@ -95,17 +95,17 @@ export async function fetchBlobDataFromTransaction(txHash: string) {
       return null;
     }
 
-    console.log('Latest Transaction Hash:', txHash);
+    // console.log('Latest Transaction Hash:', txHash);
 
     // BlobScan API를 사용하여 데이터 가져오기
     const blobData = await fetchBlobDataFromApi(txHash);
     if (blobData) {
-      console.log(`트랜잭션 해시: ${blobData.transactionHash}`);
-      console.log(`Blob Gas Used: ${blobData.blobGasUsed}`);
-      console.log(
-        `Blob As Calldata Gas Used: ${blobData.blobAsCalldataGasUsed}`
-      );
-      console.log('Commitments:', blobData.commitments);
+      // console.log(`트랜잭션 해시: ${blobData.transactionHash}`);
+      // console.log(`Blob Gas Used: ${blobData.blobGasUsed}`);
+      // console.log(
+      //   `Blob As Calldata Gas Used: ${blobData.blobAsCalldataGasUsed}`
+      // );
+      // console.log('Commitments:', blobData.commitments);
     }
 
     return blobData;

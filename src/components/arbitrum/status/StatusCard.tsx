@@ -1,5 +1,5 @@
 import { Box, Typography } from '@mui/material';
-import { ComponentStatus } from './types';
+import { ComponentStatus } from '../../../utils/common/types';
 
 interface StatusCardProps {
   title: string;
