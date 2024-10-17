@@ -141,12 +141,6 @@ export default function SecurityCouncil() {
         balanceObj[`L2Propose-${member}`] = balance;
       });
 
-      // 트랜잭션 해시를 가져와서 상태 업데이트
-      // const l1TxHashes = await fetchL1TransactionHashes(l1MembersData);
-      // const l2TxHashes = await fetchL2TransactionHashes(l2MembersData);
-      // const l2ProposeTxHashes =
-      //   await fetchL2TransactionHashes(l2ProposeMembersData);
-
       const l1TxHashes = await getLatestTransactions(
         l1MembersData,
         chainTypes.ETHEREUM

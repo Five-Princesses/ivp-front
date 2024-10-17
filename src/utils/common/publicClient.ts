@@ -1,12 +1,13 @@
 import { http, createPublicClient } from 'viem';
 import { mainnet, sepolia, arbitrum, optimism } from 'viem/chains';
+import { rpcUrls } from '../../constants/common/url';
 
 export const mainnetPublicClient = createPublicClient({
   batch: {
     multicall: true,
   },
   chain: mainnet,
-  transport: http('https://ethereum.blockpi.network/v1/rpc/public'),
+  transport: http(rpcUrls.getEtherRpcUrl()),
 });
 
 export const sepoliaPublicClient = createPublicClient({
@@ -22,7 +23,7 @@ export const arbitrumPublicClient = createPublicClient({
     multicall: true,
   },
   chain: arbitrum,
-  transport: http('https://arb1.arbitrum.io/rpc'),
+  transport: http(rpcUrls.getArbiRpcUrl()),
 });
 
 export const optimismPublicClient = createPublicClient({
