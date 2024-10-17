@@ -1,6 +1,6 @@
 import pLimit from 'p-limit';
 import axios from 'axios';
-import apiUrls from '../../constants/common/url';
+import { apiUrls } from '../../constants/common/url';
 import chainTypes from '../../constants/common/chainTypes';
 import {
   arbitrumPublicClient,
@@ -55,7 +55,7 @@ async function fetchLatestTransactionHash(
     if (flag === chainTypes.ETHEREUM) {
       const latestBlockNumber: bigint =
         await mainnetPublicClient.getBlockNumber();
-      url = apiUrls.etherscanUrl(
+      url = apiUrls.getEtherTxUrl(
         address,
         startBlockNumber,
         latestBlockNumber,
@@ -64,7 +64,7 @@ async function fetchLatestTransactionHash(
     } else if (flag === chainTypes.ARBITRUM) {
       const latestBlockNumber: bigint =
         await arbitrumPublicClient.getBlockNumber();
-      url = apiUrls.arbiscanUrl(
+      url = apiUrls.getArbiTxUrl(
         address,
         startBlockNumber,
         latestBlockNumber,
@@ -110,7 +110,7 @@ export default async function getLatestTransactions(
         apiKey = ARBISCAN_API_KEYS[index % ARBISCAN_API_KEYS.length];
         break;
       default:
-        break;
+        return null;
     }
 
     // limit을 사용하여 병렬로 처리할 비동기 작업 생성 (await 제거)

@@ -2,6 +2,7 @@ import axios from 'axios';
 import getLatestTransactionHash from './getLatestTx';
 import chainTypes from '../../constants/common/chainTypes';
 import { L1_BATCH_SUBMITTER } from '../../constants/arbitrum/address';
+import { apiUrls } from '../../constants/common/url';
 
 // Define the structure of blob data and commitment data
 interface BlobData {
@@ -23,7 +24,7 @@ export async function getBatchSubmitterLatestTxHash() {
 export async function fetchBlobCommitment(versionedHash: string) {
   try {
     const response = await axios.get(
-      `https://api.blobscan.com/blobs/${versionedHash}`
+      apiUrls.getBlobscanVersionedHashUrl(versionedHash)
     );
     const { data } = response;
 
@@ -48,9 +49,7 @@ export async function fetchBlobCommitment(versionedHash: string) {
 export async function fetchBlobDataFromApi(txHash: string) {
   try {
     // BlobScan API 호출
-    const response = await axios.get(
-      `https://api.blobscan.com/transactions/${txHash}`
-    );
+    const response = await axios.get(apiUrls.getBlobscanTxHashUrl(txHash));
     const { data } = response;
 
     if (!data) {
