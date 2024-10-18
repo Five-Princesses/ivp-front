@@ -31,7 +31,11 @@ nvm use 18.18.0
 # Now using node v18.18.0 (npm v9.8.1)
 nvm current
 # v18.18.0
+nvm alias default 18.18.0
+# default -> 18.18.0 (-> v18.18.0)
+
 ```
+
 
 ### Install Code Formatters
 
