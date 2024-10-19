@@ -87,7 +87,7 @@ function TabsManager({ sectionsRef, tabs }: TabsManagerProps) {
     <div ref={tabsRef}>
       <Tabs value={value} onChange={handleChange}>
         {tabs.map(tab => (
-          <Tab value={tab.value} label={tab.label} />
+          <Tab key={tab.value} value={tab.value} label={tab.label} />
         ))}
       </Tabs>
     </div>

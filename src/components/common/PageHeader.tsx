@@ -30,10 +30,11 @@ export default function PageHeader({
       >
         <ArrowBackIcon fontSize="large" />
       </IconButton>
-      <img
+      <Box
+        component="img"
         src={logo}
-        alt="Arbitrum Logo"
-        style={{
+        alt={`${name} Logo`}
+        sx={{
           width: 50,
           height: 50,
           marginRight: '12px',
