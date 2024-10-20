@@ -6,7 +6,7 @@ import TabsManager from '../components/common/TabsManager';
 import SecurityCouncil from '../components/arbitrum/SecurityCouncil';
 import BlobGraph from '../components/arbitrum/BlobGraph';
 import ArbitrumStatus from '../components/arbitrum/ArbitrumStatus';
-import SequenserFeed from '../components/arbitrum/SequenserFeed';
+import SequencerFeed from '../components/arbitrum/SequencerFeed';
 import Dao from '../components/arbitrum/Dao';
 
 export default function Arbitrum({
@@ -79,7 +79,7 @@ export default function Arbitrum({
           <BlobGraph />
         </Box>
         <Box id="sequencerfeed" ref={sequencerFeedRef}>
-          <SequenserFeed />
+          <SequencerFeed />
         </Box>
         <Box id="securitycouncil" ref={securityCouncilRef}>
           <SecurityCouncil />
