@@ -115,15 +115,24 @@ export default function Dao() {
   }, [transactions]);
 
   return (
-    <BoxFrame title="DAO Transactions">
-      {/* 제목 및 설명 */}
-      <SubtitleBox subtitle="subtitle">
-        <ContentBox content="In the case of an emergency upgrade, when a security threat is detected, swift action is required, so a long upgrade process like the proposer upgrade is not suitable. Therefore, the L2 Emergency Security Council immediately executes the L2 Upgrade Executor to upgrade all system contracts on Layer 2 (L2). Simultaneously, the L1 Emergency Security Council executes the Upgrade Executor to upgrade all system contracts on Layer 1 (L1). After the emergency upgrade is carried out, the Emergency Security Council is required to submit a transparency report regarding the upgrade." />
+    <BoxFrame title="DAO">
+      <SubtitleBox subtitle="Flow">
+        <ContentBox content="Arbitrum DAO can upgrade the L2 or request funds through proposals and voting. Proposals are divided into constitutional AIPs and non-constitutional AIPs. Constitutional AIPs must receive at least 5% of the voting tokens, while non-constitutional AIPs require at least 3% of the voting tokens. Here, the voting tokens refer to ARB tokens. Unlike ETH, ARB tokens are not used to pay gas fees but serve as governance tokens. 추가예정" />
+      </SubtitleBox>
+
+      <SubtitleBox subtitle="L2 Core Time Lock">
+        <ContentBox
+          content="For upgrades through constitutional proposals, the process begins with a temperature check on the Snapshot platform. To submit a proposal on the Snapshot platform, one must hold 500,000 voting tokens in an Ethereum wallet. If the temperature check is successfully completed within one week, the proposal is submitted to the Tally platform to initiate voting. At this stage, the Ethereum wallet must hold 1,000,000 tokens. It is important to note that Arbitrum tokens are delegatable. For constitutional proposals, targeting the Arbitrum Core Governor is sufficient. The call for voting takes 3 days, after which on-chain voting begins on Tally and lasts for two weeks (with a possible 2-day extension). If more than 5% of the voting tokens support the proposal, the upgrade can commence, and the upgrade is initiated when anyone calls the queue on the Core Governor (L2) contract.
+
+The upgrade process is completed after a 3-day delay on L2, followed by a one-week period for sending messages from L2 to L1, and an additional 3-day delay on L1.
+
+Below illustrates that when an upgrade is initiated, a 3-day delay begins on L2, showing how much time remains until the 3-day delay on L2 is completed."
+        />
       </SubtitleBox>
 
       {/* 트랜잭션 테이블 */}
       <Box sx={{ marginTop: '24px' }}>
-        <h1>DAO Transactions</h1>
+        <h2>Latest Transactions of the L2Timelock</h2>
 
         {loading ? (
           <Box
