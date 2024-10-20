@@ -25,5 +25,6 @@ export const apiUrls = {
 export const rpcUrls = {
   getEtherRpcUrl: () => 'https://ethereum.blockpi.network/v1/rpc/public',
   getArbiRpcUrl: () => 'https://arb1.arbitrum.io/rpc',
-  getArbiSepoliaRpcUrl: () => 'https://sepolia-rollup.arbitrum.io/rpc',
+  getArbiSepoliaRpcUrl: () =>
+    'https://arbitrum-sepolia.blockpi.network/v1/rpc/public',
 };

@@ -1,11 +1,17 @@
 import { getContractAddress } from 'viem';
+import { privateKeyToAccount } from 'viem/accounts';
 import {
   arbitrumSepoliaPublicClient,
   arbitrumSepoliaWalletClient,
 } from '../common/publicClient';
 
-const signerPublicKey = import.meta.env.BATCH_TRANSACTION_TEST_PUBLIC_KEY;
-const signerPrivateKey = import.meta.env.BATCH_TRANSACTION_TEST_PRIVATE_KEY;
+const signerPublicKey = `0x${
+  import.meta.env.VITE_BATCH_TRANSACTION_TEST_PUBLIC_KEY
+}` as `0x${string}`;
+const signerPrivateKey =
+  `0x${import.meta.env.VITE_BATCH_TRANSACTION_TEST_PRIVATE_KEY}` as `0x${string}`;
+
+const signerAccount = privateKeyToAccount(signerPrivateKey);
 
 // Vault contract ABI and bytecode
 const vaultAbi = [
@@ -13,7 +19,6 @@ const vaultAbi = [
     inputs: [],
     name: 'claim',
     outputs: [],
-    stateMutability: 'nonpayable',
     type: 'function',
   },
   {
@@ -23,35 +28,37 @@ const vaultAbi = [
 ];
 
 const vaultBytecode =
-  '0x6080604052348015600f57600080fd5b50604051610203380380610203833981016040819052602c916050565b600080546001600160a01b0319166001600160a01b0392909216919091179055607e565b600060208284031215606157600080fd5b81516001600160a01b0381168114607757600080fd5b9392505050565b6101768061008d6000396000f3fe608060405234801561001057600080fd5b506004361061002b5760003560e01c806363d9b77014610030575b600080fd5b61003861003a565b005b600080546040513260248201526001600160a01b039091169060440160408051601f198184030181529181526020820180516001600160e01b031663e8ebc47760e01b1790525161008b9190610111565b6000604051808303816000865af19150503d80600081146100c8576040519150601f19603f3d011682016040523d82523d6000602084013e6100cd565b606091505b505090508061010e5760405162461bcd60e51b81526020600482015260096024820152682330b4b632b217171760b91b604482015260640160405180910390fd5b50565b6000825160005b818110156101325760208186018101518583015201610118565b50600092019182525091905056fea264697066735822122003ee55a9c1bd085bcf7ff52cf0dbbf4ceba764775f902c2488f3643aa3de2e2f64736f6c634300081b0033';
+  '0x6080604052348015600f57600080fd5b5060b980601d6000396000f3fe60806040526004361060205760003560e01c80634e71d92d14602b57600080fd5b36602657005b600080fd5b348015603657600080fd5b50603d603f565b005b60405133904790600081818185875af1925050503d8060008114607e576040519150601f19603f3d011682016040523d82523d6000602084013e505050565b50505056fea26469706673582212208dace90ceeff58389b61b6a46361316495cd76f7b7a952a2b412ef9346897e2864736f6c634300081b0033';
 
 export async function sendBatchScript(): Promise<{
   success: boolean;
   message: string;
 }> {
   try {
+    const signerNonce = await arbitrumSepoliaPublicClient.getTransactionCount({
+      address: signerPublicKey,
+    });
     // Step 1: Get the contract address based on the transaction nonce
     const contractAddr = getContractAddress({
-      from: signerPublicKey,
-      nonce: BigInt(
-        await arbitrumSepoliaPublicClient.getTransactionCount({
-          address: signerPublicKey,
-        })
-      ),
+      from: signerAccount.address,
+      nonce: BigInt(signerNonce),
     });
+
+    console.log(contractAddr);
 
     // Step 2: Deploy the Vault contract
-    await arbitrumSepoliaWalletClient.deployContract({
-      abi: vaultAbi,
-      account: signerPrivateKey,
-      bytecode: vaultBytecode,
-    });
-
+    const deployContractTxHash =
+      await arbitrumSepoliaWalletClient.deployContract({
+        abi: vaultAbi,
+        account: signerAccount,
+        bytecode: vaultBytecode,
+      });
+    console.log(deployContractTxHash);
     // Step 3: Send the first transaction (1 ether)
     const tx1 = await arbitrumSepoliaWalletClient.sendTransaction({
       to: contractAddr,
       value: BigInt(1e18), // 1 ether in wei
-      account: signerPrivateKey,
+      account: signerAccount,
     });
     console.log(`Transaction 1 sent: ${tx1}`);
 
@@ -69,7 +76,7 @@ export async function sendBatchScript(): Promise<{
       address: contractAddr,
       abi: vaultAbi,
       functionName: 'claim',
-      account: signerPrivateKey,
+      account: signerAccount,
     });
     console.log(`Transaction 2 (claim) sent: ${tx2}`);
 
@@ -77,7 +84,7 @@ export async function sendBatchScript(): Promise<{
     const tx3 = await arbitrumSepoliaWalletClient.sendTransaction({
       to: contractAddr,
       value: BigInt(1e18),
-      account: signerPrivateKey,
+      account: signerAccount,
     });
     console.log(`Transaction 3 sent: ${tx3}`);
 
@@ -85,7 +92,7 @@ export async function sendBatchScript(): Promise<{
     const tx4 = await arbitrumSepoliaWalletClient.sendTransaction({
       to: contractAddr,
       value: BigInt(1e18),
-      account: signerPrivateKey,
+      account: signerAccount,
     });
     console.log(`Transaction 4 sent: ${tx4}`);
 
@@ -103,7 +110,7 @@ export async function sendBatchScript(): Promise<{
       address: contractAddr,
       abi: vaultAbi,
       functionName: 'claim',
-      account: signerPrivateKey,
+      account: signerAccount,
     });
     console.log(`Transaction 5 (claim) sent: ${tx5}`);
 

@@ -8,6 +8,7 @@ import BlobGraph from '../components/arbitrum/BlobGraph';
 import ArbitrumStatus from '../components/arbitrum/ArbitrumStatus';
 import SequencerFeed from '../components/arbitrum/SequencerFeed';
 import Dao from '../components/arbitrum/Dao';
+import BatchScript from '../components/arbitrum/BatchScript';
 
 export default function Arbitrum({
   setCurrentPath,
@@ -20,6 +21,7 @@ export default function Arbitrum({
   const blobGraphRef = useRef<HTMLDivElement>(null);
   const sequencerFeedRef = useRef<HTMLDivElement>(null);
   const daoRef = useRef<HTMLDivElement>(null);
+  const batchScriptRef = useRef<HTMLDivElement>(null);
 
   const tabs = [
     { value: 'status', label: 'Arbitrum Status' },
@@ -27,6 +29,7 @@ export default function Arbitrum({
     { value: 'sequencerfeed', label: 'Sequencer Feed' },
     { value: 'securitycouncil', label: 'Security Council' },
     { value: 'dao', label: 'Dao' },
+    { value: 'batchscript', label: 'Detect MEV' },
   ];
 
   const Item = styled(Box)(({ theme }) => ({
@@ -65,6 +68,7 @@ export default function Arbitrum({
             sequencerfeed: sequencerFeedRef,
             securitycouncil: securityCouncilRef,
             dao: daoRef,
+            batchscript: batchScriptRef,
           }}
           tabs={tabs}
         />
@@ -86,6 +90,9 @@ export default function Arbitrum({
         </Box>
         <Box id="dao" ref={daoRef}>
           <Dao />
+        </Box>
+        <Box id="batchscript" ref={batchScriptRef}>
+          <BatchScript />
         </Box>
       </Item>
     </Grid2>
