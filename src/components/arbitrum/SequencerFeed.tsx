@@ -159,7 +159,7 @@ export default function SequencerFeed() {
     <BoxFrame title="Sequencer Feed">
       {/* 제목 및 설명 */}
       <SubtitleBox subtitle="subtitle">
-        <ContentBox content="content" />
+        <ContentBox content="">add something</ContentBox>
       </SubtitleBox>
 
       {/* 컴포넌트 상세 설명 아코디언 */}
