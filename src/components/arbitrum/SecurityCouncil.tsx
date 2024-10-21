@@ -38,6 +38,8 @@ import SubtitleBox from '../common/SubtitleBox';
 import ContentBox from '../common/ContentBox';
 import CustomAccordion from '../common/CustomAccordion';
 
+import { apiUrls } from '../../constants/common/url';
+
 // ETH 변환 함수
 const formatBalance = (balance: bigint) => Number(balance) / 10 ** 18; // .toFixed(4);
 
@@ -54,8 +56,8 @@ const formatTransactionHash = (txHash: string | null) =>
 // L1/L2 주소 링크 생성 함수
 const createLink = (address: string, isL1: boolean) =>
   isL1
-    ? `https://etherscan.io/address/${address}`
-    : `https://arbiscan.io/address/${address}`;
+    ? apiUrls.getEtherscanAddressUrl(address)
+    : apiUrls.getArbiscanAddressUrl(address);
 
 export default function SecurityCouncil() {
   const [l1Threshold, setL1Threshold] = useState<bigint | null>(null);
