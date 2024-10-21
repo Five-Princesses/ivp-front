@@ -32,7 +32,7 @@ function DelayedInboxTxStatus() {
     [hash: string]: { hours: number; minutes: number; seconds: number };
   }>({}); // 남은 시간 상태
 
-  const createLink = (address: string | null, isL1: boolean) => {
+  const createLink = (address: string | null | undefined, isL1: boolean) => {
     if (!address) {
       return '#';
     }
@@ -54,7 +54,7 @@ function DelayedInboxTxStatus() {
   };
 
   const formatTransactionHash = (txHash: string | null) =>
-    txHash ? `${txHash.slice(0, 6)}...${txHash.slice(-4)}` : null; // 'No Transaction'일 때 축약하지 않음
+    txHash ? `${txHash.slice(0, 6)}...${txHash.slice(-4)}` : 'No Transaction'; // 'No Transaction'일 때 축약하지 않음
 
   //   useEffect(() => {}, [l1toL2PairTxList]);
 

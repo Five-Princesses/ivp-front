@@ -100,14 +100,18 @@ async function fetchDelayedInboxTxList(): Promise<IL1Tx[]> {
           estL2Calldata: null,
         };
 
-        if (txData.input.slice(0, 10) === createRetryableTicketSignature) {
-          const { functionName, args } = decodeFunctionData({
-            abi: createRetryableTicket,
-            data: txData.input,
-          });
+        try {
+          if (txData.input.slice(0, 10) === createRetryableTicketSignature) {
+            const { functionName, args } = decodeFunctionData({
+              abi: createRetryableTicket,
+              data: txData.input,
+            });
 
-          txData.functionName = functionName;
-          txData.estL2Calldata = String(args?.[7]);
+            txData.functionName = functionName;
+            txData.estL2Calldata = String(args?.[7]);
+          }
+        } catch (error) {
+          console.error('Error encoding data : ', error);
         }
 
         return txData;
@@ -128,7 +132,7 @@ async function fetchDelayedInboxTxList(): Promise<IL1Tx[]> {
 async function fetchL1toL2PairTxInfo() {
   const l1TxList: IL1Tx[] = await fetchDelayedInboxTxList();
   const currentBlock = await arbitrumPublicClient.getBlockNumber();
-  const fromBlock = currentBlock - BigInt(10000000);
+  const fromBlock = currentBlock - BigInt(1000000);
 
   const limit = pLimit(5);
   const delay = (ms: number): Promise<void> =>
@@ -147,8 +151,13 @@ async function fetchL1toL2PairTxInfo() {
           import.meta.env.VITE_ARBISCAN_API_KEYS1
         );
 
-        const response = await axios.get(apiUrl);
-        return response.data.result;
+        try {
+          const response = await axios.get(apiUrl);
+          return response.data.result;
+        } catch (error) {
+          console.error('Error fetching transaction by hash:', error);
+          return null;
+        }
       })
     )
   );
@@ -165,15 +174,23 @@ async function fetchL1toL2PairTxInfo() {
           l2Tx.hash,
           import.meta.env.VITE_ARBISCAN_API_KEYS1
         );
-        const response = await axios.get(apiUrl);
-        return response.data.result;
+        try {
+          const response = await axios.get(apiUrl);
+          return response.data.result;
+        } catch (error) {
+          console.error('Error fetching transaction by hash:', error);
+          return null;
+        }
       })
     )
   );
+
+  const filteredL2TxListByHash = l2TxListByHash.filter(tx => tx !== null);
+
   const pairTxList: IL1toL2PairTx[] = [];
 
   l1TxList.forEach(l1Tx => {
-    const matchingItem = l2TxListByHash.find(
+    const matchingItem = filteredL2TxListByHash.find(
       l2Tx => l2Tx.requestId === l1Tx.requestId
     );
 
@@ -199,14 +216,18 @@ async function fetchL1toL2PairTxInfo() {
     };
 
     if (matchingItem) {
-      if (matchingItem.input.slice(0, 10) === submitRetryableSignature) {
-        const { functionName, args } = decodeFunctionData({
-          abi: submitRetryable,
-          data: matchingItem.input,
-        });
+      try {
+        if (matchingItem.input.slice(0, 10) === submitRetryableSignature) {
+          const { functionName, args } = decodeFunctionData({
+            abi: submitRetryable,
+            data: matchingItem.input,
+          });
 
-        pairTx.l2FunctionName = functionName;
-        pairTx.l2CRTCalldata = String(args?.[10]);
+          pairTx.l2FunctionName = functionName;
+          pairTx.l2CRTCalldata = String(args?.[10]);
+        }
+      } catch (error) {
+        console.error('Error encoding data : ', error);
       }
 
       pairTx.l2TxHash = matchingItem.hash;
@@ -214,7 +235,11 @@ async function fetchL1toL2PairTxInfo() {
       pairTx.l2Input = matchingItem.input;
       pairTx.l2Value = matchingItem.value
         ? fromHex(matchingItem.value, 'bigint')
-        : fromHex(matchingItem.depositValue, 'bigint');
+        : BigInt(0);
+
+      pairTx.l2Value = matchingItem.depositValue
+        ? fromHex(matchingItem.depositValue, 'bigint')
+        : pairTx.l2Value;
       pairTx.l2BlockNumber = BigInt(matchingItem.blockNumber);
       pairTx.l2To = matchingItem.to;
     }
