@@ -44,6 +44,36 @@ export async function getThresholdOfL1SecurityCouncil(): Promise<bigint> {
   }
 }
 
+export async function getThresholdOfL2SecurityCouncil(): Promise<bigint> {
+  try {
+    const threshold = await arbitrumPublicClient.readContract({
+      address: L2_SECURITY_COUNCIL_ADDRESS,
+      abi: getThreshold,
+      functionName: 'getThreshold',
+    });
+    return threshold as bigint;
+  } catch (e) {
+    const error = e as ReadContractErrorType;
+    console.log(error.name);
+    return -1n;
+  }
+}
+
+export async function getThresholdOfSecurityCouncil(): Promise<bigint> {
+  try {
+    const threshold = await arbitrumPublicClient.readContract({
+      address: L2_SECURITY_COUNCIL_ADDRESS,
+      abi: getThreshold,
+      functionName: 'getThreshold',
+    });
+    return threshold as bigint;
+  } catch (e) {
+    const error = e as ReadContractErrorType;
+    console.log(error.name);
+    return -1n;
+  }
+}
+
 export async function getBalanceOnL1({
   addr,
 }: {
@@ -79,22 +109,6 @@ export async function getMembersOfL2SecurityCouncil(): Promise<string[]> {
     return [];
   }
 }
-
-export async function getThresholdOfL2SecurityCouncil(): Promise<bigint> {
-  try {
-    const threshold = await arbitrumPublicClient.readContract({
-      address: L2_SECURITY_COUNCIL_ADDRESS,
-      abi: getThreshold,
-      functionName: 'getThreshold',
-    });
-    return threshold as bigint;
-  } catch (e) {
-    const error = e as ReadContractErrorType;
-    console.log(error.name);
-    return -1n;
-  }
-}
-
 export async function getMembersOfL2SecurityCouncilPropose(): Promise<
   string[]
 > {

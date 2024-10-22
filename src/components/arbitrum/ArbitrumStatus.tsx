@@ -93,7 +93,11 @@ function ArbitrumStatus() {
     <BoxFrame title="Status">
       {/* 제목 및 설명 */}
       <SubtitleBox subtitle="Health">
-        <ContentBox content="This dashboard shows the current status of the Arbitrum sequencer and its components. Each component is monitored for operational health, and any issues are highlighted here for further inspection." />
+        <ContentBox content="">
+          This dashboard shows the current status of the Arbitrum sequencer and
+          its components. Each component is monitored for operational health,
+          and any issues are highlighted here for further inspection.
+        </ContentBox>
       </SubtitleBox>
 
       {/* 컴포넌트 상태 카드 렌더링 */}

@@ -232,34 +232,37 @@ export default function BlobGraph() {
   return (
     <BoxFrame title="Blob Vs Calldata">
       <SubtitleBox subtitle="Batch Submitter">
-        <ContentBox
-          content={
-            <>
-              <Typography variant="body1">
-                Address:{' '}
-                <Link
-                  href={`https://etherscan.io/address/${L1_BATCH_SUBMITTER}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  underline="hover"
-                >
-                  {L1_BATCH_SUBMITTER}
-                </Link>
-              </Typography>
-              <Typography variant="body1" mt={1}>
-                Balance:{' '}
-                {balance !== null
-                  ? `${formatBalance(balance)} ETH`
-                  : 'Loading...'}
-              </Typography>
-            </>
-          }
-        />
+        <ContentBox content="">
+          <>
+            <Typography variant="body1">
+              Address:{' '}
+              <Link
+                href={`https://etherscan.io/address/${L1_BATCH_SUBMITTER}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                underline="hover"
+              >
+                {L1_BATCH_SUBMITTER}
+              </Link>
+            </Typography>
+            <Typography variant="body1" mt={1}>
+              Balance:{' '}
+              {balance !== null
+                ? `${formatBalance(balance)} ETH`
+                : 'Loading...'}
+            </Typography>
+          </>
+        </ContentBox>
       </SubtitleBox>
       <SubtitleBox subtitle="Summary">
-        <ContentBox content="The batch submitter is used to post L2 transactions to L1 in batches. Arbitrum One generally uses blobs to save on gas costs, but if using blob data increases gas expenses, it automatically converts to calldata." />
+        <ContentBox content="">
+          The batch submitter is used to post L2 transactions to L1 in batches.
+          Arbitrum One generally uses blobs to save on gas costs, but if using
+          blob data increases gas expenses, it automatically converts to
+          calldata.
+        </ContentBox>
       </SubtitleBox>
-      <ContentBox content={renderContent()} />
+      <ContentBox content="">{renderContent()} </ContentBox>
     </BoxFrame>
   );
 }
