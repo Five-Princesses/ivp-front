@@ -8,6 +8,7 @@ import BlobGraph from '../components/arbitrum/BlobGraph';
 import ArbitrumStatus from '../components/arbitrum/ArbitrumStatus';
 import SequencerFeed from '../components/arbitrum/SequencerFeed';
 import Dao from '../components/arbitrum/Dao';
+import DelayedInboxTxStatus from '../components/arbitrum/DelayedInboxTxStatus';
 import BatchScript from '../components/arbitrum/BatchScript';
 
 export default function Arbitrum({
@@ -21,6 +22,7 @@ export default function Arbitrum({
   const blobGraphRef = useRef<HTMLDivElement>(null);
   const sequencerFeedRef = useRef<HTMLDivElement>(null);
   const daoRef = useRef<HTMLDivElement>(null);
+  const delayedInboxTxStatusRef = useRef<HTMLDivElement>(null);
   const batchScriptRef = useRef<HTMLDivElement>(null);
 
   const tabs = [
@@ -29,6 +31,7 @@ export default function Arbitrum({
     { value: 'sequencerfeed', label: 'Sequencer Feed' },
     { value: 'securitycouncil', label: 'Security Council' },
     { value: 'dao', label: 'Dao' },
+    { value: 'delayedinboxtxstatus', label: 'DelayedInbox' },
     { value: 'batchscript', label: 'Detect MEV' },
   ];
 
@@ -68,6 +71,7 @@ export default function Arbitrum({
             sequencerfeed: sequencerFeedRef,
             securitycouncil: securityCouncilRef,
             dao: daoRef,
+            delayedinboxtxstatus: delayedInboxTxStatusRef,
             batchscript: batchScriptRef,
           }}
           tabs={tabs}
@@ -90,6 +94,9 @@ export default function Arbitrum({
         </Box>
         <Box id="dao" ref={daoRef}>
           <Dao />
+        </Box>
+        <Box id="delayedinboxtxstatus" ref={delayedInboxTxStatusRef}>
+          <DelayedInboxTxStatus />
         </Box>
         <Box id="batchscript" ref={batchScriptRef}>
           <BatchScript />
