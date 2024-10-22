@@ -3,9 +3,10 @@ import { Box, Typography } from '@mui/material';
 
 interface ContentBoxProps {
   content: string | JSX.Element; // content가 string 또는 JSX Element를 받을 수 있도록 변경
+  children: React.ReactNode;
 }
 
-export default function ContentBox({ content }: ContentBoxProps) {
+export default function ContentBox({ content, children }: ContentBoxProps) {
   return (
     <Box
       sx={{
@@ -19,6 +20,7 @@ export default function ContentBox({ content }: ContentBoxProps) {
       {/* content가 문자열인지 JSX인지에 따라 다르게 처리 */}
       {typeof content === 'string' ? (
         <Typography variant="body1" gutterBottom>
+          {children}
           {content}
         </Typography>
       ) : (
