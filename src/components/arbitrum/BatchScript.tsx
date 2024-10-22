@@ -14,26 +14,28 @@ import SubtitleBox from '../common/SubtitleBox';
 import ContentBox from '../common/ContentBox';
 
 export default function BatchScript() {
-  const [transactions, setTransactions] = useState<string[]>([]);
   const [status, setStatus] = useState<string[]>([]); // 트랜잭션 상태 저장
   const [allSuccess, setAllSuccess] = useState<boolean | null>(null);
+  const [expanded, setExpanded] = useState<boolean>(false); // 아코디언 상태 관리
 
   const handleSendTransactions = async () => {
-    const txResults: string[] = [];
     const txStatus: string[] = [];
+    setExpanded(true); // Execute 버튼을 누르면 아코디언 자동으로 펼침
 
     try {
-      const result = await sendBatchTx();
+      // 각 트랜잭션의 진행 상황을 업데이트하는 함수
+      const onProgress = (message: string, isSuccess: boolean = false) => {
+        const latestStatus = isSuccess ? `${message} ✅` : `${message}...`;
+        // 마지막 항목을 덮어쓰지 않고 상태 업데이트
+        txStatus.push(latestStatus);
+        setStatus([...txStatus]);
+      };
 
-      // 트랜잭션이 성공적으로 처리되었는지 여부 확인
+      // sendBatchTx 실행
+      const result = await sendBatchTx(onProgress);
+
+      // 전체 트랜잭션이 완료되었는지 확인
       if (result.success) {
-        txStatus.push('Create Contract... Success!');
-        txResults.push(result.message);
-
-        // 성공적으로 처리된 트랜잭션 목록을 업데이트
-        setTransactions(txResults);
-        setStatus(txStatus);
-
         setAllSuccess(true);
       } else {
         txStatus.push('Transaction Failed!');
@@ -41,8 +43,8 @@ export default function BatchScript() {
       }
     } catch (error) {
       txStatus.push('Transaction Failed with Error!');
-      console.error(error);
       setAllSuccess(false);
+      setStatus([...txStatus]);
     }
   };
 
@@ -51,7 +53,7 @@ export default function BatchScript() {
       {/* 제목 및 설명 */}
       <SubtitleBox subtitle="subtitle">
         <ContentBox content="">
-          You Can Excute Script for Detecting MEV.
+          You Can Execute Script for Detecting MEV.
         </ContentBox>
       </SubtitleBox>
 
@@ -63,23 +65,21 @@ export default function BatchScript() {
       </Box>
 
       {/* 트랜잭션 목록 */}
-      {transactions.length > 0 && (
-        <Accordion sx={{ marginTop: '24px' }}>
+      {status.length > 0 && (
+        <Accordion expanded={expanded} sx={{ marginTop: '24px' }}>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
             <Typography>Transaction Details</Typography>
           </AccordionSummary>
           <AccordionDetails>
             <ul>
-              {transactions.map((tx, index) => (
-                <li key={tx}>
-                  {tx}: {status[index]}
-                </li>
+              {status.map(tx => (
+                <li key={tx}>{tx}</li>
               ))}
             </ul>
 
             {/* 모든 트랜잭션이 성공했을 경우 메시지 출력 */}
             {allSuccess && (
-              <Typography>There is not MEV Attack by Sequencer</Typography>
+              <Typography>There is no MEV Attack by Sequencer</Typography>
             )}
           </AccordionDetails>
         </Accordion>
