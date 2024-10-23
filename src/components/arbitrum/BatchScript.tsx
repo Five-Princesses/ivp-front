@@ -20,13 +20,17 @@ export default function BatchScript() {
 
   const handleSendTransactions = async () => {
     const txStatus: string[] = [];
+
+    // 상태 초기화
+    setStatus([]); // 트랜잭션 상태 초기화
+    setAllSuccess(null); // 성공 여부 초기화
     setExpanded(true); // Execute 버튼을 누르면 아코디언 자동으로 펼침
 
     try {
       // 각 트랜잭션의 진행 상황을 업데이트하는 함수
       const onProgress = (message: string, isSuccess: boolean = false) => {
         const latestStatus = isSuccess ? `${message} ✅` : `${message}...`;
-        // 마지막 항목을 덮어쓰지 않고 상태 업데이트
+        // 상태를 추가
         txStatus.push(latestStatus);
         setStatus([...txStatus]);
       };
@@ -48,6 +52,14 @@ export default function BatchScript() {
     }
   };
 
+  // 아코디언 토글 함수
+  const handleAccordionChange = (
+    event: React.SyntheticEvent,
+    isExpanded: boolean
+  ) => {
+    setExpanded(isExpanded);
+  };
+
   return (
     <BoxFrame title="Detecting MEV">
       {/* 제목 및 설명 */}
@@ -66,17 +78,22 @@ export default function BatchScript() {
 
       {/* 트랜잭션 목록 */}
       {status.length > 0 && (
-        <Accordion expanded={expanded} sx={{ marginTop: '24px' }}>
+        <Accordion
+          expanded={expanded}
+          onChange={handleAccordionChange}
+          sx={{ marginTop: '24px' }}
+        >
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
             <Typography>Transaction Details</Typography>
           </AccordionSummary>
-          <AccordionDetails>
+          <AccordionDetails sx={{ height: '300px' }}>
+            {' '}
+            {/* 고정된 크기 */}
             <ul>
               {status.map(tx => (
                 <li key={tx}>{tx}</li>
               ))}
             </ul>
-
             {/* 모든 트랜잭션이 성공했을 경우 메시지 출력 */}
             {allSuccess && (
               <Typography>There is no MEV Attack by Sequencer</Typography>
