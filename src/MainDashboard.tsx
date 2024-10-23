@@ -1,6 +1,7 @@
 import Paper from '@mui/material/Paper';
 import { Box, Typography } from '@mui/material';
 import { useState } from 'react';
+import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import Arbitrum from './pages/Arbitrum';
 import Optimism from './pages/Optimism';
 
@@ -9,7 +10,10 @@ interface IDummydata {
 }
 
 export default function MainDashboard() {
+  // eslint-disable-next-line
   const [currentPath, setCurrentPath] = useState<string>('/');
+  const navigate = useNavigate();
+
   const dummyData: IDummydata = {
     Scaling: [
       { name: 'OP Mainnet', path: '/scaling/op-mainnet' },
@@ -39,6 +43,7 @@ export default function MainDashboard() {
 
   const handleItemClick = (path: string) => {
     setCurrentPath(path);
+    navigate(path);
   };
 
   const renderCategory = (
@@ -93,28 +98,29 @@ export default function MainDashboard() {
 
   // 경로에 따라 다른 컴포넌트 렌더링
   const renderPageContent = () => {
-    switch (currentPath) {
-      case '/dashboard':
-        return (
-          <Box>
-            {Object.entries(dummyData).map(([category, items]) =>
-              renderCategory(category, items)
-            )}
-          </Box>
-        );
-      case '/scaling/arbitrum':
-        return <Arbitrum setCurrentPath={setCurrentPath} />;
-      case '/scaling/op-mainnet':
-        return <Optimism setCurrentPath={setCurrentPath} />;
-      default:
-        return (
-          <Box>
-            {Object.entries(dummyData).map(([category, items]) =>
-              renderCategory(category, items)
-            )}
-          </Box>
-        );
-    }
+    return (
+      <Routes>
+        <Route
+          path="/dashboard"
+          element={
+            <Box>
+              {Object.entries(dummyData).map(([category, items]) =>
+                renderCategory(category, items)
+              )}
+            </Box>
+          }
+        />
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        <Route
+          path="/scaling/arbitrum"
+          element={<Arbitrum setCurrentPath={setCurrentPath} />}
+        />
+        <Route
+          path="/scaling/op-mainnet"
+          element={<Optimism setCurrentPath={setCurrentPath} />}
+        />
+      </Routes>
+    );
   };
 
   return <Box sx={{ width: '100%' }}>{renderPageContent()}</Box>;
