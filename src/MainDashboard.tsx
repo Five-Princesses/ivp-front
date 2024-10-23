@@ -1,7 +1,7 @@
 import Paper from '@mui/material/Paper';
 import { Box, Typography } from '@mui/material';
 import { useState } from 'react';
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import Arbitrum from './pages/Arbitrum';
 import Optimism from './pages/Optimism';
 
@@ -101,16 +101,6 @@ export default function MainDashboard() {
     return (
       <Routes>
         <Route
-          path="*"
-          element={
-            <Box>
-              {Object.entries(dummyData).map(([category, items]) =>
-                renderCategory(category, items)
-              )}
-            </Box>
-          }
-        />
-        <Route
           path="/dashboard"
           element={
             <Box>
@@ -120,6 +110,7 @@ export default function MainDashboard() {
             </Box>
           }
         />
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
         <Route
           path="/scaling/arbitrum"
           element={<Arbitrum setCurrentPath={setCurrentPath} />}

@@ -13,8 +13,12 @@ export default function PageHeader({
 }) {
   const navigate = useNavigate();
   const handleItemClick = (path: string) => {
-    setCurrentPath(path);
-    navigate(path);
+    try {
+      setCurrentPath(path);
+      navigate(path);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
