@@ -1,4 +1,5 @@
 import { Box, IconButton, Typography } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 export default function PageHeader({
@@ -10,6 +11,16 @@ export default function PageHeader({
   logo: string;
   name: string;
 }) {
+  const navigate = useNavigate();
+  const handleItemClick = (path: string) => {
+    try {
+      setCurrentPath(path);
+      navigate(path);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -22,7 +33,7 @@ export default function PageHeader({
       }}
     >
       <IconButton
-        onClick={() => setCurrentPath('/dashboard')}
+        onClick={() => handleItemClick('/dashboard')}
         sx={{
           color: 'primary.main',
           mr: 2,

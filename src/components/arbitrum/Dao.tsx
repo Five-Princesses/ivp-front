@@ -15,6 +15,11 @@ import BoxFrame from '../common/BoxFrame';
 import SubtitleBox from '../common/SubtitleBox';
 import ContentBox from '../common/ContentBox';
 import fetchTransactionsByBlockRange from '../../utils/arbitrum/getScheduleTx';
+import {
+  getProposals,
+  getProposalTitle,
+  Proposal,
+} from '../../utils/arbitrum/getProposal';
 
 // 트랜잭션 타입 정의
 interface TransactionWithTimestamp {
@@ -42,6 +47,10 @@ const formatTransactionHash = (txHash: string | null) =>
 // Arbiscan 트랜잭션 링크 생성 함수
 const createLink = (txHash: string) => `https://arbiscan.io/tx/${txHash}`;
 
+// Tally 링크 생성 함수
+const createTallyLink = (onchainId: string) =>
+  `https://www.tally.xyz/gov/arbitrum/proposal/${onchainId}?govId=eip155:42161:0xf07DeD9dC292157749B6Fd268E37DF6EA38395B9`;
+
 // 추가할 값(16진수)을 10진수로 변환
 const additionalValue = 259200; // 0x3f480의 10진수 값
 
@@ -53,6 +62,8 @@ export default function Dao() {
   const [timeRemainingState, setTimeRemainingState] = useState<{
     [hash: string]: { hours: number; minutes: number; seconds: number };
   }>({}); // 남은 시간 상태
+  const [proposals, setProposals] = useState<Proposal[]>([]);
+  const [titles, setTitles] = useState<{ [onchainId: string]: string }>({}); // 타이틀 상태 추가
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -81,6 +92,35 @@ export default function Dao() {
     };
 
     fetchTransactions();
+  }, []);
+
+  useEffect(() => {
+    const fetchProposals = async () => {
+      try {
+        const proposalData = await getProposals();
+        setProposals(proposalData);
+
+        const titlePromises = proposalData.map(async proposal => {
+          const title = await getProposalTitle(proposal.onchainId);
+          return { onchainId: proposal.onchainId, title: title || 'No Title' };
+        });
+
+        const titlesData = await Promise.all(titlePromises);
+        const titlesMap = titlesData.reduce(
+          (acc, { onchainId, title }) => {
+            acc[onchainId] = title;
+            return acc;
+          },
+          {} as { [onchainId: string]: string }
+        );
+
+        setTitles(titlesMap);
+      } catch (error) {
+        console.error('Error fetching proposals or titles:', error);
+      }
+    };
+
+    fetchProposals();
   }, []);
 
   useEffect(() => {
@@ -116,6 +156,87 @@ export default function Dao() {
 
   return (
     <BoxFrame title="DAO">
+      {/* Proposal Table 추가 */}
+      <Box sx={{ marginTop: '24px' }}>
+        <h2>Latest Proposals</h2>
+
+        <TableContainer
+          component={Paper}
+          elevation={0}
+          sx={{ border: '1px solid black' }}
+        >
+          {' '}
+          {/* 그림자 제거 */}
+          <Table sx={{ borderCollapse: 'collapse' }}>
+            {' '}
+            {/* 테두리 선을 붙여서 표시 */}
+            <TableHead>
+              <TableRow sx={{ borderBottom: '1px solid black' }}>
+                {' '}
+                {/* 행 구분 줄 */}
+                <TableCell
+                  sx={{ borderRight: '1px solid black', paddingLeft: '16px' }}
+                >
+                  {' '}
+                  {/* 셀 구분 줄 */}
+                  Title
+                </TableCell>
+                <TableCell
+                  align="center"
+                  sx={{ borderRight: '1px solid black' }}
+                >
+                  Status
+                </TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {proposals.length > 0 ? (
+                proposals.map(proposal => (
+                  <TableRow
+                    key={proposal.id}
+                    sx={{ borderBottom: '1px solid black' }}
+                  >
+                    {' '}
+                    {/* 행 구분 줄 */}
+                    <TableCell
+                      sx={{
+                        borderRight: '1px solid black',
+                        paddingLeft: '8px',
+                        paddingRight: '8px',
+                      }}
+                    >
+                      <Link
+                        href={createTallyLink(proposal.onchainId)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {titles[proposal.onchainId] || 'Loading...'}
+                      </Link>
+                    </TableCell>
+                    <TableCell
+                      align="center"
+                      sx={{ borderRight: '1px solid black' }}
+                    >
+                      {proposal.status}
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={2}
+                    align="center"
+                    sx={{ borderRight: '1px solid black' }}
+                  >
+                    No proposals found.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
+
       <SubtitleBox subtitle="Flow">
         <ContentBox content="">
           Arbitrum DAO can upgrade the L2 or request funds through proposals and
@@ -154,6 +275,7 @@ export default function Dao() {
           L2 is completed.
         </ContentBox>
       </SubtitleBox>
+
       {/* 트랜잭션 테이블 */}
       <Box sx={{ marginTop: '24px' }}>
         <h2>Latest Transactions of the L2Timelock</h2>
