@@ -10,6 +10,7 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Skeleton,
 } from '@mui/material';
 import {
   Chart,
@@ -262,7 +263,11 @@ export default function BlobGraph() {
           calldata.
         </ContentBox>
       </SubtitleBox>
-      <ContentBox content="">{renderContent()} </ContentBox>
+      {loading ? (
+        <Skeleton variant="rectangular" width="100%" height={860} />
+      ) : (
+        <ContentBox content="">{renderContent()} </ContentBox>
+      )}
     </BoxFrame>
   );
 }
