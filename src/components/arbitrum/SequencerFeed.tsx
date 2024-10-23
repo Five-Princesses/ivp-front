@@ -4,117 +4,98 @@ import BoxFrame from '../common/BoxFrame';
 import SubtitleBox from '../common/SubtitleBox';
 import ContentBox from '../common/ContentBox';
 import CustomAccordion from '../common/CustomAccordion';
-import DynamicTable from '../common/DynamicTable';
-// import HorizontalLinearStepper from '../common/HorizontalLinearStepper';
-// import L2BlockHash from './feeds/L2BlockHash';
-// import SequencerFeedHash from './feeds/SequencerFeedHash';
-// import SequencerFeedMsg from './feeds/SequencerFeedMsg';
-// import SequencerFeedDetail from './feeds/SequencerFeedDetail';
-
-interface TableData {
-  id: number;
-  feedBlockHash: string;
-  l2BlockHash: string;
-  status: string;
-  timestamp: string;
-}
-
-interface SequencerMessage {}
+import L2BlockHash from './feeds/L2BlockHash';
+import SequencerFeedHash from './feeds/SequencerFeedHash';
+import SequencerFeedMsg from './feeds/SequencerFeedMsg';
+import SequencerFeedDetail from './feeds/SequencerFeedDetail';
+import { SequencerMessage } from '../../utils/common/types';
+import CompareFeedAndL2 from './feeds/CompareFeedAndL2';
 
 const SEQUENCER_URI = 'wss://arb1.arbitrum.io/feed';
 
 export default function SequencerFeed() {
-  const [loading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [dataFetched] = useState(false);
   const [messages, setMessages] = useState<SequencerMessage[]>([]);
+  const [prevMessage, setPrevMessage] = useState<SequencerMessage>();
+  const [pickMessage, setPickMessage] = useState<SequencerMessage>();
+  const [isSocketOpen, setIsSocketOpen] = useState(false);
+  const [isAccordionExpanded, setIsAccordionExpanded] = useState(false);
+  const [activeStep] = useState(0);
+  const [feedHashes] = useState<string[]>([
+    '0xa1b2c3d4e5f6',
+    '0x1a2b3c4d5e6f',
+    '0x2a3b4c5d6e7f',
+    '0x3a4b5c6d7e8f',
+    '0x4a5b6c7d8e9f',
+  ]);
+  const [l2Hashes] = useState<string[]>([
+    '0xa1b2c3d4e5f6',
+    '0x1a2b3c4d5e6f',
+    '0x2a3b4c5d6e7f',
+    '0x3a4b5c6d7e8f',
+    '0x4a5b6c7d8e9f',
+  ]);
 
-  // const steps: string[] = [
-  //   'Get Sequencer Feed Message',
-  //   'Hash the message',
-  //   'Compare the hash with the L2 block hash',
-  // ];
-  // const tempMessage =
-  //   '{"version":1,"messages":[{"sequenceNumber":243170738,"message":{"message":{"header":{"kind":3,"sender":"0xa4b000000000000000000073657175656e636572","blockNumber":20998290,"timestamp":1729324962,"requestId":null,"baseFeeL1":null},"l2Msg":"AwAAAAAAAAC0BAL4sIKksYMMNb6Ag5iWgIMBmaGUeumrE/yJRTI7d4s/hngUXoDsLvuAuESpBZy7AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA3q0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABfXhAMCAoFpOd4qzvWDEf0IF4tUZfrgFAqHQQlxVEj3MbNVpY6pfoEiCCDK0V+MQUxxPcZjXtel0bVvK1XjSq4CS04hB95zeAAAAAAAAAPEEAvjtgqSxNoCDzf5ggwfag5R9btGGNUxzR0gln1kC3faispKTF4C4hJVi+sQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMABoHqCjPKTVjAvBYSifQN9il/vzbJ8RR8FafIGsZerxBRooGPliBn8345XpW1eHoW5QLFc+on6mnEMqiZuUymzEbblAAAAAAAAAxME+QMPg3CqZIO3GwCDMNQAlKe1GJvKhM0wTYVTl3x8YUMpdQ2ZgLkCpLFDBEsAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAbgAAAAAAAAAAAAAAAHueGE4Hpu4awj6uD+jWvi9mPwXmAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAZxO8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOQCI1NuAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGBJLRBVFP2exLiOd/6nUdRZJ4f59uZvIr3drDXsJK6N6QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFEBAAAAAAAAaI8AAHZKAAAAAAAAAAAAAAAATuuk4WiyNgHrdxal0awkO403UpAAAHWeAAAAAAAAAAAAAAAAGc/OR+1UqIYUZI3D8ZpZgAlwB90AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEGn2ulPmbl8RJGDNXuzQ24IT8u6DdddpNcU6DH3aMdcXVEX+N453F6DO+/+0+zPrk5y/GfHGh1lv5pYyOmEkKvPGwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACDAUmGoH7Bxn/JJzWvvMUlGfMa+4YLgUDZSXfaqifeRQ4de0NwoD3Qx+Pu1Ovcw9FbzZhvAzazChtlADWmYljvY8hhouqV"},"delayedMessagesRead":1724493}}]}';
-  // //tempMessage를 JSON으로 파싱 후 문자열로 변환
-  // const parsedMessage = JSON.stringify(JSON.parse(tempMessage), null, 2);
+  const steps: string[] = [
+    'Get Sequencer Feed Message',
+    'Hash the message',
+    'Compare the hash with the L2 block hash',
+  ];
+
   useEffect(() => {
-    // fetchData();
-    const webSocket = new WebSocket(SEQUENCER_URI);
+    if (isAccordionExpanded) {
+      const webSocket = new WebSocket(SEQUENCER_URI);
 
-    webSocket.onopen = () => {
-      console.log('WebSocket connected');
-    };
+      webSocket.onopen = () => {
+        setIsSocketOpen(true);
+        console.log('WebSocket connected');
+      };
 
-    webSocket.onmessage = message => {
-      try {
-        console.log('Received message:', message.data);
-        if (messages) {
-          setMessages([...messages, message.data]);
+      webSocket.onmessage = message => {
+        try {
+          // console.log('Received message:', message.data);
+          const parsedMessage = JSON.parse(message.data);
+          setMessages(prevMessages => [...prevMessages, parsedMessage]);
+        } catch (e) {
+          console.error('Failed to parse message:', e);
         }
-      } catch (e) {
-        console.error('Failed to parse message:', e);
-      }
-    };
+      };
 
-    setTimeout(() => {
-      webSocket.close();
-      console.log('messages:', messages);
-    }, 10000);
-  }, []);
+      const timeoutId = setTimeout(() => {
+        console.log('Closing WebSocket after 10 seconds');
+        webSocket.close();
+        setIsSocketOpen(false);
+      }, 3000);
 
-  const data: TableData[] = [
-    {
-      id: 1,
-      feedBlockHash: '0x1234567890abcdef',
-      l2BlockHash: '0x1234567890abcdef',
-      status: 'matched',
-      timestamp: '2024-10-17 16:00:00',
-    },
-    {
-      id: 2,
-      feedBlockHash: '0xabcdef1234567890',
-      l2BlockHash: '0x1234567890abcdef',
-      status: 'mismatch',
-      timestamp: '2024-10-17 16:30:00',
-    },
-    {
-      id: 2,
-      feedBlockHash: '0xabcdef1234567890',
-      l2BlockHash: '0x1234567890abcdef',
-      status: 'mismatch',
-      timestamp: '2024-10-17 16:30:00',
-    },
-    {
-      id: 2,
-      feedBlockHash: '0xabcdef1234567890',
-      l2BlockHash: '0x1234567890abcdef',
-      status: 'mismatch',
-      timestamp: '2024-10-17 16:30:00',
-    },
-    {
-      id: 2,
-      feedBlockHash: '0xabcdef1234567890',
-      l2BlockHash: '0x1234567890abcdef',
-      status: 'mismatch',
-      timestamp: '2024-10-17 16:30:00',
-    },
-  ];
+      return () => {
+        clearTimeout(timeoutId);
+        if (webSocket.readyState === WebSocket.OPEN) {
+          webSocket.close();
+        }
+      };
+    }
+    return undefined;
+  }, [isAccordionExpanded]);
 
-  const columns: (keyof TableData)[] = [
-    'id',
-    'feedBlockHash',
-    'l2BlockHash',
-    'status',
-    'timestamp',
-  ];
+  useEffect(() => {
+    if (!isSocketOpen) {
+      const randomIndex = Math.floor(Math.random() * messages.length);
+      // console.log('randomIndex:', randomIndex);
+      // console.log('randomMessage:', messages[randomIndex]);
+      setPickMessage(messages[randomIndex]);
+      setPrevMessage(messages[randomIndex - 1]);
+      console.log('prevMessage:', messages[randomIndex - 1]);
+      console.log('pickMessage:', messages[randomIndex]);
+    }
+  }, [isSocketOpen]);
 
   const handleAccordionChange = (
     event: React.SyntheticEvent,
     isExpanded: boolean
   ) => {
-    console.log('isLoading:', loading);
     if (isExpanded && !dataFetched) {
-      // fetchData();
+      setIsAccordionExpanded(true);
     }
   };
   const renderTable = () => {
@@ -135,21 +116,38 @@ export default function SequencerFeed() {
             </Box>
           </Box>
         ) : (
-          <DynamicTable
-            data={data}
-            columns={columns}
-            enableSorting={false}
-            enablePagination={false}
-            enableFilter={false}
-            rowsPerPageOptions={[5, 10, 20]}
-            initialRowsPerPage={5}
-            style={{ width: '100%', height: '400px' }}
-          />
-          // <SequencerFeedDetail steps={steps}>
-          //   <SequencerFeedMsg msg={parsedMessage} />
-          //   <SequencerFeedHash />
-          //   <L2BlockHash />
-          // </SequencerFeedDetail>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 2,
+              padding: 2,
+              borderRadius: 1,
+            }}
+          >
+            <SequencerFeedDetail steps={steps}>
+              <SequencerFeedMsg
+                msg={pickMessage ? JSON.stringify(pickMessage, null, 2) : ''}
+                loading={loading}
+                setLoading={setLoading}
+              />
+              <SequencerFeedHash
+                hashes={feedHashes}
+                loading={loading}
+                setLoading={setLoading}
+                prevMessage={prevMessage}
+                pickMessage={pickMessage}
+                isActive={activeStep === 1}
+              />
+              <L2BlockHash
+                hashes={l2Hashes}
+                // loading={loading}
+                // setLoading={setLoading}
+                // isActive={activeStep === 2}
+              />
+              <CompareFeedAndL2 />
+            </SequencerFeedDetail>
+          </Box>
         )}
       </Box>
     );

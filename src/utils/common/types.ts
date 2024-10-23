@@ -35,3 +35,24 @@ export interface TabsManagerProps {
   };
   tabs: TabItem[];
 }
+
+export interface SequencerMessage {
+  version: number;
+  messages: {
+    sequenceNumber: number;
+    message: {
+      message: {
+        header: {
+          kind: number;
+          sender: string;
+          blockNumber: number;
+          timestamp: number;
+          requestId: string | null;
+          baseFeeL1: string | null;
+        };
+        l2Msg: string;
+      };
+      delayedMessagesRead: number;
+    };
+  }[];
+}
