@@ -121,9 +121,14 @@ async function fetchDelayedInboxTxList(): Promise<IL1Tx[]> {
     })
   );
 
-  const filteredResults = results
-    .filter(result => result !== null)
-    .sort((a, b) => Number(b.timestamp - a.timestamp))
+  const filteredResults: IL1Tx[] = results
+    .filter((result): result is IL1Tx => result !== null)
+    .sort((a, b) => {
+      if (a === null || b === null) {
+        return 0;
+      }
+      return Number(b.timestamp - a.timestamp);
+    })
     .slice(0, 10);
 
   return filteredResults;
