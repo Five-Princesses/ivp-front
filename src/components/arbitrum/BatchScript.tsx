@@ -51,7 +51,7 @@ export default function BatchScript() {
   return (
     <BoxFrame title="Detecting MEV">
       {/* 제목 및 설명 */}
-      <SubtitleBox subtitle="subtitle">
+      <SubtitleBox subtitle="Send Batch Script">
         <ContentBox content="">
           You Can Execute Script for Detecting MEV.
         </ContentBox>
