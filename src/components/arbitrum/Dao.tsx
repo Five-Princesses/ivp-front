@@ -23,9 +23,10 @@ import {
   getProposalTitle,
   Proposal,
 } from '../../utils/arbitrum/getProposal';
-import { methodIdToCheck } from '../../constants/arbitrum/functionSignature';
+import { METHOD_ID_TO_CHECK } from '../../constants/arbitrum/functionSignature';
 import { L2_CORE_CORE_GOVERNOR_ADDRESS } from '../../constants/arbitrum/address';
-import { apiUrls } from '../../constants/common/url';
+import { API_URLS } from '../../constants/common/url';
+import { DAO_CONTENTS } from '../../constants/arbitrum/contents';
 
 // 트랜잭션 타입 정의
 interface TransactionWithTimestamp {
@@ -82,7 +83,7 @@ export default function Dao() {
             BigInt(startBlock),
             BigInt(endBlock),
             import.meta.env.VITE_ARBISCAN_API_KEYS1,
-            methodIdToCheck
+            METHOD_ID_TO_CHECK
           )
         );
 
@@ -214,7 +215,7 @@ export default function Dao() {
                       }}
                     >
                       <Link
-                        href={apiUrls.getTallyUrl(proposal.onchainId)}
+                        href={API_URLS.getTallyUrl(proposal.onchainId)}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
@@ -246,42 +247,11 @@ export default function Dao() {
       </Box>
 
       <SubtitleBox subtitle="Flow">
-        <ContentBox content="">
-          Arbitrum DAO can upgrade the L2 or request funds through proposals and
-          voting. Proposals are divided into constitutional AIPs and
-          non-constitutional AIPs. Constitutional AIPs must receive at least 5%
-          of the voting tokens, while non-constitutional AIPs require at least
-          3% of the voting tokens. Here, the voting tokens refer to ARB tokens.
-          Unlike ETH, ARB tokens are not used to pay gas fees but serve as
-          governance tokens. 추가예정
-        </ContentBox>
+        <ContentBox>{DAO_CONTENTS.DAO_FLOW}</ContentBox>
       </SubtitleBox>
 
       <SubtitleBox subtitle="L2 Core Time Lock">
-        <ContentBox content="">
-          For upgrades through constitutional proposals, the process begins with
-          a temperature check on the Snapshot platform. To submit a proposal on
-          the Snapshot platform, one must hold 500,000 voting tokens in an
-          Ethereum wallet. If the temperature check is successfully completed
-          within one week, the proposal is submitted to the Tally platform to
-          initiate voting. At this stage, the Ethereum wallet must hold
-          1,000,000 tokens. It is important to note that Arbitrum tokens are
-          delegatable. For constitutional proposals, targeting the Arbitrum Core
-          Governor is sufficient. The call for voting takes 3 days, after which
-          on-chain voting begins on Tally and lasts for two weeks (with a
-          possible 2-day extension). If more than 5% of the voting tokens
-          support the proposal, the upgrade can commence, and the upgrade is
-          initiated when anyone calls the queue on the Core Governor (L2)
-          contract. <br />
-          <br />
-          The upgrade process is completed after a 3-day delay on L2, followed
-          by a one-week period for sending messages from L2 to L1, and an
-          additional 3-day delay on L1.
-          <br /> <br />
-          Below illustrates that when an upgrade is initiated, a 3-day delay
-          begins on L2, showing how much time remains until the 3-day delay on
-          L2 is completed.
-        </ContentBox>
+        <ContentBox>{DAO_CONTENTS.L2_CORE_TIMELOCK}</ContentBox>
       </SubtitleBox>
 
       {/* 트랜잭션 테이블 */}
@@ -315,7 +285,6 @@ export default function Dao() {
               <TableBody>
                 {transactions.length > 0 ? (
                   transactions.map(tx => {
-                    console.log(delayMin);
                     const originalTimestamp = parseInt(tx.timeStamp, 10) * 1000; // Unix timestamp (milliseconds)
                     const adjustedTimestamp =
                       originalTimestamp + delayMin * 1000; // 추가된 timestamp 계산 (milliseconds)
@@ -331,7 +300,7 @@ export default function Dao() {
                       <TableRow key={tx.hash}>
                         <TableCell align="center">
                           <Link
-                            href={apiUrls.getArbiscanTxUrl(tx.hash)}
+                            href={API_URLS.getArbiscanTxUrl(tx.hash)}
                             target="_blank"
                             rel="noopener noreferrer"
                           >

@@ -1,4 +1,4 @@
-export const apiUrls = {
+export const API_URLS = {
   getEtherTxUrl: (
     address: string,
     startBlockNumber: bigint,
@@ -27,6 +27,9 @@ export const apiUrls = {
   getArbiscanAddressUrl: (address: string) =>
     `https://arbiscan.io/address/${address}`,
 
+  getOptimismScanAddressUrl: (address: string) =>
+    `https://optimistic.etherscan.io/address/${address}`,
+
   getArbiscanAddressTxUrl: (
     address: string,
     startBlock: bigint,
@@ -48,7 +51,7 @@ export const apiUrls = {
   getTallyQueryUrl: () => `https://api.tally.xyz/query`,
 };
 
-export const rpcUrls = {
+export const RPC_URLS = {
   getEtherRpcUrl: () => 'https://ethereum.blockpi.network/v1/rpc/public',
   getArbiRpcUrl: () => 'https://arb1.arbitrum.io/rpc',
 };

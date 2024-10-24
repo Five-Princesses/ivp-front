@@ -1,7 +1,7 @@
 import pLimit from 'p-limit';
 import axios from 'axios';
-import { apiUrls } from '../../constants/common/url';
-import chainTypes from '../../constants/common/chainTypes';
+import { API_URLS } from '../../constants/common/url';
+import CHAINTYPES from '../../constants/common/chainTypes';
 import { mainnetPublicClient } from '../common/publicClient';
 
 const ETHERSCAN_API_KEY: string[] = [
@@ -51,15 +51,15 @@ async function fetchLatestTransactionHash(
       await mainnetPublicClient.getBlockNumber();
 
     let url = '';
-    if (flag === chainTypes.ETHEREUM) {
-      url = apiUrls.getEtherTxUrl(
+    if (flag === CHAINTYPES.ETHEREUM) {
+      url = API_URLS.getEtherTxUrl(
         address,
         startBlockNumber,
         latestBlockNumber,
         apiKey
       );
-    } else if (flag === chainTypes.ARBITRUM) {
-      url = apiUrls.getArbiTxUrl(
+    } else if (flag === CHAINTYPES.ARBITRUM) {
+      url = API_URLS.getArbiTxUrl(
         address,
         startBlockNumber,
         latestBlockNumber,
@@ -90,10 +90,10 @@ export default async function getLatestTransactions(
   const apiFunctions = addresses.map((address, index) => {
     let apiKey = '';
     switch (flag) {
-      case chainTypes.ETHEREUM:
+      case CHAINTYPES.ETHEREUM:
         apiKey = ETHERSCAN_API_KEY[index % ETHERSCAN_API_KEY.length];
         break;
-      case chainTypes.ARBITRUM:
+      case CHAINTYPES.ARBITRUM:
         apiKey = OPTIMISM_API_KEYS[index % OPTIMISM_API_KEYS.length];
         break;
       default:

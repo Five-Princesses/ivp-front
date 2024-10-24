@@ -12,14 +12,14 @@ import {
   L1_TO_L2_ALIAS_ADDRESS,
 } from '../../constants/arbitrum/address';
 
-import { apiUrls } from '../../constants/common/url';
+import { API_URLS } from '../../constants/common/url';
 import {
   createRetryableTicket,
   submitRetryable,
 } from '../../constants/arbitrum/abi';
 import {
-  createRetryableTicketSignature,
-  submitRetryableSignature,
+  CREATE_RETRYABLE_TICKET_SIGNATURE,
+  SUBMIT_RETRYABLE_SIGNATURE,
 } from '../../constants/arbitrum/functionSignature';
 
 interface IL1Tx {
@@ -101,7 +101,7 @@ async function fetchDelayedInboxTxList(): Promise<IL1Tx[]> {
         };
 
         try {
-          if (txData.input.slice(0, 10) === createRetryableTicketSignature) {
+          if (txData.input.slice(0, 10) === CREATE_RETRYABLE_TICKET_SIGNATURE) {
             const { functionName, args } = decodeFunctionData({
               abi: createRetryableTicket,
               data: txData.input,
@@ -149,7 +149,7 @@ async function fetchL1toL2PairTxInfo() {
     l1TxList.map(l1Tx =>
       limit(async () => {
         await delay(1000); // 1초 지연
-        const apiUrl = apiUrls.getArbiscanAddressTxUrl(
+        const apiUrl = API_URLS.getArbiscanAddressTxUrl(
           l1Tx.aliasedL2Addr,
           fromBlock,
           currentBlock,
@@ -175,7 +175,7 @@ async function fetchL1toL2PairTxInfo() {
     sortedPromises.map(l2Tx =>
       limit(async () => {
         await delay(1000);
-        const apiUrl = apiUrls.getArbiscanTxByHash(
+        const apiUrl = API_URLS.getArbiscanTxByHash(
           l2Tx.hash,
           import.meta.env.VITE_ARBISCAN_API_KEYS1
         );
@@ -222,7 +222,7 @@ async function fetchL1toL2PairTxInfo() {
 
     if (matchingItem) {
       try {
-        if (matchingItem.input.slice(0, 10) === submitRetryableSignature) {
+        if (matchingItem.input.slice(0, 10) === SUBMIT_RETRYABLE_SIGNATURE) {
           const { functionName, args } = decodeFunctionData({
             abi: submitRetryable,
             data: matchingItem.input,

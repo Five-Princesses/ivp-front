@@ -1,8 +1,8 @@
 import axios from 'axios';
 import getLatestTransactionHash from './getLatestTx';
-import chainTypes from '../../constants/common/chainTypes';
+import CHAINTYPES from '../../constants/common/chainTypes';
 import { L1_BATCH_SUBMITTER } from '../../constants/arbitrum/address';
-import { apiUrls } from '../../constants/common/url';
+import { API_URLS } from '../../constants/common/url';
 
 // Define the structure of blob data and commitment data
 interface BlobData {
@@ -17,14 +17,14 @@ interface CommitmentData {
 
 // L1_BATCH_SUBMITTER의 가장 최근 트랜잭션 해시를 가져오는 함수
 export async function getBatchSubmitterLatestTxHash() {
-  return getLatestTransactionHash(L1_BATCH_SUBMITTER, chainTypes.ETHEREUM);
+  return getLatestTransactionHash(L1_BATCH_SUBMITTER, CHAINTYPES.ETHEREUM);
 }
 
 // versionedHash로부터 commitment 값을 가져오는 함수
 export async function fetchBlobCommitment(versionedHash: string) {
   try {
     const response = await axios.get(
-      apiUrls.getBlobscanVersionedHashUrl(versionedHash)
+      API_URLS.getBlobscanVersionedHashUrl(versionedHash)
     );
     const { data } = response;
 
@@ -49,7 +49,7 @@ export async function fetchBlobCommitment(versionedHash: string) {
 export async function fetchBlobDataFromApi(txHash: string) {
   try {
     // BlobScan API 호출
-    const response = await axios.get(apiUrls.getBlobscanTxHashUrl(txHash));
+    const response = await axios.get(API_URLS.getBlobscanTxHashUrl(txHash));
     const { data } = response;
 
     if (!data) {

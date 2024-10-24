@@ -1,7 +1,7 @@
-export const depositEthSignature = '0x439370b1';
+export const DEPOSIT_ETH_SIGNATURE = '0x439370b1';
 
-export const createRetryableTicketSignature = '0x679b6ded';
+export const CREATE_RETRYABLE_TICKET_SIGNATURE = '0x679b6ded';
 
-export const submitRetryableSignature = '0xc9f95d32';
+export const SUBMIT_RETRYABLE_SIGNATURE = '0xc9f95d32';
 
-export const methodIdToCheck = '0x160cbed7';
+export const METHOD_ID_TO_CHECK = '0x160cbed7';

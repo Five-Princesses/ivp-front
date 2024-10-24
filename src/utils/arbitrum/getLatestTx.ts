@@ -1,7 +1,7 @@
 import pLimit from 'p-limit';
 import axios from 'axios';
-import { apiUrls } from '../../constants/common/url';
-import chainTypes from '../../constants/common/chainTypes';
+import { API_URLS } from '../../constants/common/url';
+import CHAINTYPES from '../../constants/common/chainTypes';
 import {
   arbitrumPublicClient,
   mainnetPublicClient,
@@ -52,19 +52,19 @@ async function fetchLatestTransactionHash(
     const startBlockNumber: bigint = 0n; // 항상 0이면?
 
     let url = '';
-    if (flag === chainTypes.ETHEREUM) {
+    if (flag === CHAINTYPES.ETHEREUM) {
       const latestBlockNumber: bigint =
         await mainnetPublicClient.getBlockNumber();
-      url = apiUrls.getEtherTxUrl(
+      url = API_URLS.getEtherTxUrl(
         address,
         startBlockNumber,
         latestBlockNumber,
         apiKey
       );
-    } else if (flag === chainTypes.ARBITRUM) {
+    } else if (flag === CHAINTYPES.ARBITRUM) {
       const latestBlockNumber: bigint =
         await arbitrumPublicClient.getBlockNumber();
-      url = apiUrls.getArbiTxUrl(
+      url = API_URLS.getArbiTxUrl(
         address,
         startBlockNumber,
         latestBlockNumber,
@@ -103,10 +103,10 @@ export default async function getLatestTransactions(
   const apiFunctions = addresses.map((address, index) => {
     let apiKey = '';
     switch (flag) {
-      case chainTypes.ETHEREUM:
+      case CHAINTYPES.ETHEREUM:
         apiKey = ETHERSCAN_API_KEY[index % ETHERSCAN_API_KEY.length];
         break;
-      case chainTypes.ARBITRUM:
+      case CHAINTYPES.ARBITRUM:
         apiKey = ARBISCAN_API_KEYS[index % ARBISCAN_API_KEYS.length];
         break;
       default:

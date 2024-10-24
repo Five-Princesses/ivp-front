@@ -36,7 +36,7 @@ export default function BoxFrameEx() {
     <BoxFrame title="Box Frame Example">
       {/* Subtitle과 ContentBox를 함께 사용한 예시 */}
       <SubtitleBox subtitle="Example Subtitle">
-        <ContentBox content="">{sampleContent} </ContentBox>
+        <ContentBox>{sampleContent} </ContentBox>
       </SubtitleBox>
 
       {/* Accordion을 사용한 예시 */}
@@ -47,12 +47,12 @@ export default function BoxFrameEx() {
         loading={loading}
       >
         {/* 아코디언 내부에 추가적으로 ContentBox를 포함할 수 있음 */}
-        <ContentBox content="">{additionalContent} </ContentBox>
+        <ContentBox>{additionalContent} </ContentBox>
       </CustomAccordion>
 
       {/* 추가적으로 다른 SubtitleBox와 ContentBox를 사용할 수 있음 */}
       <SubtitleBox subtitle="Another Subtitle">
-        <ContentBox content="">Another piece of content goes here.</ContentBox>
+        <ContentBox>Another piece of content goes here.</ContentBox>
       </SubtitleBox>
     </BoxFrame>
   );
