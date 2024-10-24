@@ -1,7 +1,8 @@
 import axios from 'axios';
+import { apiUrls } from '../../constants/common/url';
+import { proposalQuery, titleQuery } from '../../constants/arbitrum/query';
+import { tallyGovernerId } from '../../constants/arbitrum/id';
 
-const API_URL = 'https://api.tally.xyz/query'; // API 엔드포인트
-const GOVERNOR_ID = 'eip155:42161:0xf07DeD9dC292157749B6Fd268E37DF6EA38395B9'; // governorId 값
 const TALLY_API_KEY: string = import.meta.env.VITE_TALLY_API_KEY; // API 키
 
 // Proposal 타입 정의
@@ -17,34 +18,10 @@ export interface Proposal {
 
 // 첫 번째 쿼리: Proposals 목록을 가져오는 함수
 export const getProposals = (): Promise<Proposal[]> => {
-  const query = `
-    query Proposals($input: ProposalsInput!) {
-      proposals(input: $input) {
-        nodes {
-          ... on Proposal {
-            id
-            onchainId
-            status
-            createdAt
-            proposer {
-              id
-              name
-            }
-          }
-        }
-        pageInfo {
-          firstCursor
-          lastCursor
-          count
-        }
-      }
-    }
-  `;
-
   const variables = {
     input: {
       filters: {
-        governorId: GOVERNOR_ID,
+        governorId: tallyGovernerId,
         includeArchived: false,
         isDraft: false,
       },
@@ -63,9 +40,9 @@ export const getProposals = (): Promise<Proposal[]> => {
   // Promise 체인 사용
   return axios
     .post(
-      API_URL,
+      apiUrls.getTallyQueryUrl(),
       {
-        query,
+        query: proposalQuery,
         variables,
       },
       {
@@ -86,20 +63,10 @@ export const getProposals = (): Promise<Proposal[]> => {
 
 // 두 번째 쿼리: Proposal의 Title을 가져오는 함수
 export const getProposalTitle = (onchainId: string): Promise<string | null> => {
-  const query = `
-    query Proposal($input: ProposalInput!) {
-      proposal(input: $input) {
-        metadata {
-          title
-        }
-      }
-    }
-  `;
-
   const variables = {
     input: {
       onchainId,
-      governorId: GOVERNOR_ID,
+      governorId: tallyGovernerId,
     },
   };
 
@@ -107,9 +74,9 @@ export const getProposalTitle = (onchainId: string): Promise<string | null> => {
 
   return axios
     .post(
-      API_URL,
+      apiUrls.getTallyQueryUrl(),
       {
-        query,
+        query: titleQuery,
         variables,
       },
       {

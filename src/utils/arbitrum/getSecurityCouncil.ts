@@ -2,14 +2,14 @@ import { ReadContractErrorType } from 'viem';
 import {
   mainnetPublicClient,
   arbitrumPublicClient,
-} from './common/publicClient';
+} from '../common/publicClient';
 
-import { getOwners, getThreshold } from '../constants/arbitrum/abi';
+import { getOwners, getThreshold } from '../../constants/arbitrum/abi';
 import {
   L1_SECURITY_COUNCIL_ADDRESS,
   L2_SECURITY_COUNCIL_ADDRESS,
   L2_SECURITY_COUNCIL_PROPOSE_ADDRESS,
-} from '../constants/arbitrum/address';
+} from '../../constants/arbitrum/address';
 
 // ===================================Layer 1==========================================
 // ====================================================================================
@@ -41,36 +41,6 @@ export async function getThresholdOfL1SecurityCouncil(): Promise<bigint> {
   } catch (e) {
     console.error('Failed to get L1 Security Council threshold:', e);
     throw new Error('Failed to retrieve L1 Security Council threshold');
-  }
-}
-
-export async function getThresholdOfL2SecurityCouncil(): Promise<bigint> {
-  try {
-    const threshold = await arbitrumPublicClient.readContract({
-      address: L2_SECURITY_COUNCIL_ADDRESS,
-      abi: getThreshold,
-      functionName: 'getThreshold',
-    });
-    return threshold as bigint;
-  } catch (e) {
-    const error = e as ReadContractErrorType;
-    console.log(error.name);
-    return -1n;
-  }
-}
-
-export async function getThresholdOfSecurityCouncil(): Promise<bigint> {
-  try {
-    const threshold = await arbitrumPublicClient.readContract({
-      address: L2_SECURITY_COUNCIL_ADDRESS,
-      abi: getThreshold,
-      functionName: 'getThreshold',
-    });
-    return threshold as bigint;
-  } catch (e) {
-    const error = e as ReadContractErrorType;
-    console.log(error.name);
-    return -1n;
   }
 }
 
@@ -109,6 +79,22 @@ export async function getMembersOfL2SecurityCouncil(): Promise<string[]> {
     return [];
   }
 }
+
+export async function getThresholdOfL2SecurityCouncil(): Promise<bigint> {
+  try {
+    const threshold = await arbitrumPublicClient.readContract({
+      address: L2_SECURITY_COUNCIL_ADDRESS,
+      abi: getThreshold,
+      functionName: 'getThreshold',
+    });
+    return threshold as bigint;
+  } catch (e) {
+    const error = e as ReadContractErrorType;
+    console.log(error.name);
+    return -1n;
+  }
+}
+
 export async function getMembersOfL2SecurityCouncilPropose(): Promise<
   string[]
 > {
