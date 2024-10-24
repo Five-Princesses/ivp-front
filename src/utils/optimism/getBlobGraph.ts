@@ -1,6 +1,6 @@
 import axios from 'axios';
 import getLatestTransactionHash from './getLatestTx';
-import chainTypes from '../../constants/common/chainTypes';
+import CHAINTYPES from '../../constants/common/chainTypes';
 import { L1_BATCH_SUBMITTER } from '../../constants/optimism/address';
 
 // Define the structure of blob data and commitment data
@@ -16,7 +16,7 @@ interface CommitmentData {
 
 // L1_BATCH_SUBMITTER의 가장 최근 트랜잭션 해시를 가져오는 함수
 export async function getBatchSubmitterLatestTxHash() {
-  return getLatestTransactionHash(L1_BATCH_SUBMITTER, chainTypes.ETHEREUM);
+  return getLatestTransactionHash(L1_BATCH_SUBMITTER, CHAINTYPES.ETHEREUM);
 }
 
 // versionedHash로부터 commitment 값을 가져오는 함수

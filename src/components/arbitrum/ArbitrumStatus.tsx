@@ -11,7 +11,8 @@ import {
   IComponent,
 } from '../../utils/common/types';
 import StatusCard from './status/StatusCard';
-import { statusARB1GroupId } from '../../constants/arbitrum/id';
+import { STATUS_ARB1_GROUP_ID } from '../../constants/arbitrum/id';
+import { STATUS_CONTENTS } from '../../constants/arbitrum/contents';
 
 // 컴포넌트 상태에 따른 색상을 반환하는 함수
 const getStatusColor = (status: ComponentStatus) => {
@@ -73,7 +74,7 @@ function ArbitrumStatus() {
           components: data.components
             .filter(
               (component: IComponent) =>
-                component.group?.id === statusARB1GroupId // ARB1 Group ID
+                component.group?.id === STATUS_ARB1_GROUP_ID // ARB1 Group ID
             )
             .map((component: IComponent) => ({
               ...component,
@@ -94,11 +95,7 @@ function ArbitrumStatus() {
     <BoxFrame title="Status">
       {/* 제목 및 설명 */}
       <SubtitleBox subtitle="Health">
-        <ContentBox content="">
-          This dashboard shows the current status of the Arbitrum sequencer and
-          its components. Each component is monitored for operational health,
-          and any issues are highlighted here for further inspection.
-        </ContentBox>
+        <ContentBox>{STATUS_CONTENTS.HEALTH}</ContentBox>
       </SubtitleBox>
 
       {/* 컴포넌트 상태 카드 렌더링 */}

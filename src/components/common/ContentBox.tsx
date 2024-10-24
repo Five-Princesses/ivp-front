@@ -1,12 +1,25 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
+import { nanoid } from 'nanoid';
 
 interface ContentBoxProps {
-  content: string | JSX.Element; // content가 string 또는 JSX Element를 받을 수 있도록 변경
   children: React.ReactNode;
 }
 
-export default function ContentBox({ content, children }: ContentBoxProps) {
+export default function ContentBox({ children }: ContentBoxProps) {
+  const parseContent = (content: React.ReactNode): React.ReactNode => {
+    if (typeof content !== 'string') {
+      return content;
+    }
+
+    return content.split(/<br\s*\/?>/i).map(line => (
+      <React.Fragment key={nanoid()}>
+        {line}
+        {line !== content.split(/<br\s*\/?>/i).pop() && <br />}
+      </React.Fragment>
+    )); // <br/> to newline
+  };
+
   return (
     <Box
       sx={{
@@ -18,14 +31,9 @@ export default function ContentBox({ content, children }: ContentBoxProps) {
       }}
     >
       {/* content가 문자열인지 JSX인지에 따라 다르게 처리 */}
-      {typeof content === 'string' ? (
-        <Typography variant="body1" gutterBottom>
-          {children}
-          {content}
-        </Typography>
-      ) : (
-        content
-      )}
+      <Typography variant="body1" gutterBottom>
+        {parseContent(children)}
+      </Typography>
     </Box>
   );
 }

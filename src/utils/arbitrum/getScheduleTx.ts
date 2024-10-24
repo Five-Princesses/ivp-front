@@ -2,7 +2,7 @@ import axios from 'axios';
 import { Address } from 'viem';
 import { arbitrumPublicClient } from '../common/publicClient';
 import { L2_CORE_CORE_GOVERNOR_ADDRESS } from '../../constants/arbitrum/address';
-import { apiUrls } from '../../constants/common/url';
+import { API_URLS } from '../../constants/common/url';
 import { timelock, getMinDelay } from '../../constants/arbitrum/abi';
 
 // 트랜잭션 타입 정의
@@ -32,7 +32,7 @@ export async function fetchTransactionsByBlockRange(
   apiKey: string,
   methodId: string
 ): Promise<TransactionWithTimestamp[]> {
-  const url = apiUrls.getArbiTxUrl(address, startBlock, endBlock, apiKey);
+  const url = API_URLS.getArbiTxUrl(address, startBlock, endBlock, apiKey);
 
   try {
     const response = await axios.get(url);

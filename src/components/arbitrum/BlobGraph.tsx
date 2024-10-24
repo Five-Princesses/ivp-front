@@ -31,6 +31,8 @@ import { L1_BATCH_SUBMITTER } from '../../constants/arbitrum/address';
 import SubtitleBox from '../common/SubtitleBox';
 import { getBalanceOnL1 } from '../../utils/arbitrum/getSecurityCouncil';
 
+import { BLOB_GRAPH_CONTENTS } from '../../constants/arbitrum/contents';
+
 // ETH 변환 함수
 const formatBalance = (balance: bigint) => Number(balance) / 10 ** 18; // .toFixed(4);
 
@@ -233,7 +235,7 @@ export default function BlobGraph() {
   return (
     <BoxFrame title="Blob Vs Calldata">
       <SubtitleBox subtitle="Batch Submitter">
-        <ContentBox content="">
+        <ContentBox>
           <>
             <Typography variant="body1">
               Address:{' '}
@@ -256,17 +258,12 @@ export default function BlobGraph() {
         </ContentBox>
       </SubtitleBox>
       <SubtitleBox subtitle="Summary">
-        <ContentBox content="">
-          The batch submitter is used to post L2 transactions to L1 in batches.
-          Arbitrum One generally uses blobs to save on gas costs, but if using
-          blob data increases gas expenses, it automatically converts to
-          calldata.
-        </ContentBox>
+        <ContentBox>{BLOB_GRAPH_CONTENTS.BATCH_SUBMITTER}</ContentBox>
       </SubtitleBox>
       {loading ? (
         <Skeleton variant="rectangular" width="100%" height={860} />
       ) : (
-        <ContentBox content="">{renderContent()} </ContentBox>
+        <ContentBox>{renderContent()} </ContentBox>
       )}
     </BoxFrame>
   );

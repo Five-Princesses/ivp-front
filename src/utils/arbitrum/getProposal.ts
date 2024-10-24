@@ -1,7 +1,7 @@
 import axios from 'axios';
-import { apiUrls } from '../../constants/common/url';
+import { API_URLS } from '../../constants/common/url';
 import { proposalQuery, titleQuery } from '../../constants/arbitrum/query';
-import { tallyGovernerId } from '../../constants/arbitrum/id';
+import { TALLY_GOVERNER_ID } from '../../constants/arbitrum/id';
 
 const TALLY_API_KEY: string = import.meta.env.VITE_TALLY_API_KEY; // API 키
 
@@ -21,7 +21,7 @@ export const getProposals = (): Promise<Proposal[]> => {
   const variables = {
     input: {
       filters: {
-        governorId: tallyGovernerId,
+        governorId: TALLY_GOVERNER_ID,
         includeArchived: false,
         isDraft: false,
       },
@@ -40,7 +40,7 @@ export const getProposals = (): Promise<Proposal[]> => {
   // Promise 체인 사용
   return axios
     .post(
-      apiUrls.getTallyQueryUrl(),
+      API_URLS.getTallyQueryUrl(),
       {
         query: proposalQuery,
         variables,
@@ -66,7 +66,7 @@ export const getProposalTitle = (onchainId: string): Promise<string | null> => {
   const variables = {
     input: {
       onchainId,
-      governorId: tallyGovernerId,
+      governorId: TALLY_GOVERNER_ID,
     },
   };
 
@@ -74,7 +74,7 @@ export const getProposalTitle = (onchainId: string): Promise<string | null> => {
 
   return axios
     .post(
-      apiUrls.getTallyQueryUrl(),
+      API_URLS.getTallyQueryUrl(),
       {
         query: titleQuery,
         variables,

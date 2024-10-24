@@ -16,14 +16,15 @@ import {
   IL1toL2PairTx,
 } from '../../utils/arbitrum/getDelayedInboxTx';
 
-import { apiUrls } from '../../constants/common/url';
+import { API_URLS } from '../../constants/common/url';
 
-import { depositEthSignature } from '../../constants/arbitrum/functionSignature';
+import { DEPOSIT_ETH_SIGNATURE } from '../../constants/arbitrum/functionSignature';
 
 import BoxFrame from '../common/BoxFrame';
 import SubtitleBox from '../common/SubtitleBox';
 import ContentBox from '../common/ContentBox';
 import CustomAccordion from '../common/CustomAccordion';
+import { DELAYED_INBOX_CONTENTS } from '../../constants/arbitrum/contents';
 
 function DelayedInboxTxStatus() {
   const [loading, setLoading] = useState<boolean>(true); // 로딩 상태 추가
@@ -38,9 +39,9 @@ function DelayedInboxTxStatus() {
     }
 
     if (isL1) {
-      return apiUrls.getEtherscanTxUrl(address);
+      return API_URLS.getEtherscanTxUrl(address);
     }
-    return apiUrls.getArbiscanTxUrl(address);
+    return API_URLS.getArbiscanTxUrl(address);
   };
 
   const handleAccordionChange = async (
@@ -92,11 +93,7 @@ function DelayedInboxTxStatus() {
   return (
     <BoxFrame title="Delayed Inbox">
       <SubtitleBox subtitle="Delayed Inbox Tx">
-        <ContentBox content="">
-          This dashboard shows the current status of the Arbitrum sequencer and
-          its components. Each component is monitored for operational health,
-          and any issues are highlighted here for further inspection.
-        </ContentBox>
+        <ContentBox>{DELAYED_INBOX_CONTENTS.DELAYED_INBOX_STATUS}</ContentBox>
       </SubtitleBox>
 
       <Box sx={{ marginTop: '24px' }}>
@@ -156,7 +153,7 @@ function DelayedInboxTxStatus() {
                     let calldataPair = '';
                     let etherPair = '';
                     if (pairTx.l2TxHash) {
-                      if (pairTx.l1Input === depositEthSignature) {
+                      if (pairTx.l1Input === DEPOSIT_ETH_SIGNATURE) {
                         calldataPair = 'depositETH';
                       } else if (
                         pairTx.estL2Calldata === pairTx.l2CRTCalldata
