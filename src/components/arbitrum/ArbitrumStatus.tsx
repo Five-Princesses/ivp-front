@@ -11,6 +11,7 @@ import {
   IComponent,
 } from '../../utils/common/types';
 import StatusCard from './status/StatusCard';
+import { statusARB1GroupId } from '../../constants/arbitrum/id';
 
 // 컴포넌트 상태에 따른 색상을 반환하는 함수
 const getStatusColor = (status: ComponentStatus) => {
@@ -72,7 +73,7 @@ function ArbitrumStatus() {
           components: data.components
             .filter(
               (component: IComponent) =>
-                component.group?.id === 'clm870t63469012bvonu3p8jat5' // ARB1 Group ID
+                component.group?.id === statusARB1GroupId // ARB1 Group ID
             )
             .map((component: IComponent) => ({
               ...component,

@@ -21,7 +21,7 @@ import {
   getBalanceOnL2,
   // fetchL1TransactionHashes,
   // fetchL2TransactionHashes,
-} from '../../utils/getSecurityCouncil';
+} from '../../utils/arbitrum/getSecurityCouncil';
 
 import {
   L1_SECURITY_COUNCIL_ADDRESS,

@@ -41,6 +41,11 @@ export const apiUrls = {
   getEtherscanTxUrl: (address: string) => `https://etherscan.io/tx/${address}`,
 
   getArbiscanTxUrl: (address: string) => `https://arbiscan.io/tx/${address}`,
+
+  getTallyUrl: (onchainId: string) =>
+    `https://www.tally.xyz/gov/arbitrum/proposal/${onchainId}?govId=eip155:42161:0xf07DeD9dC292157749B6Fd268E37DF6EA38395B9`,
+
+  getTallyQueryUrl: () => `https://api.tally.xyz/query`,
 };
 
 export const rpcUrls = {

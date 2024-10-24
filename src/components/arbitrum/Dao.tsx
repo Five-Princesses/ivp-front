@@ -14,21 +14,24 @@ import {
 import BoxFrame from '../common/BoxFrame';
 import SubtitleBox from '../common/SubtitleBox';
 import ContentBox from '../common/ContentBox';
-import fetchTransactionsByBlockRange from '../../utils/arbitrum/getScheduleTx';
+import {
+  fetchTransactionsByBlockRange,
+  fetchTimelockMinDelay,
+} from '../../utils/arbitrum/getScheduleTx';
 import {
   getProposals,
   getProposalTitle,
   Proposal,
 } from '../../utils/arbitrum/getProposal';
+import { methodIdToCheck } from '../../constants/arbitrum/functionSignature';
+import { L2_CORE_CORE_GOVERNOR_ADDRESS } from '../../constants/arbitrum/address';
+import { apiUrls } from '../../constants/common/url';
 
 // 트랜잭션 타입 정의
 interface TransactionWithTimestamp {
   hash: string;
   timeStamp: string;
 }
-
-const addressToCheck = '0xf07DeD9dC292157749B6Fd268E37DF6EA38395B9';
-const methodIdToCheck = '0x160cbed7'; // Method ID
 
 // 원하는 블록 범위 설정
 const blockRanges = [
@@ -44,16 +47,6 @@ const formatTransactionHash = (txHash: string | null) =>
     ? `${txHash.slice(0, 8)}...${txHash.slice(-6)}`
     : null;
 
-// Arbiscan 트랜잭션 링크 생성 함수
-const createLink = (txHash: string) => `https://arbiscan.io/tx/${txHash}`;
-
-// Tally 링크 생성 함수
-const createTallyLink = (onchainId: string) =>
-  `https://www.tally.xyz/gov/arbitrum/proposal/${onchainId}?govId=eip155:42161:0xf07DeD9dC292157749B6Fd268E37DF6EA38395B9`;
-
-// 추가할 값(16진수)을 10진수로 변환
-const additionalValue = 259200; // 0x3f480의 10진수 값
-
 export default function Dao() {
   const [transactions, setTransactions] = useState<TransactionWithTimestamp[]>(
     []
@@ -64,6 +57,19 @@ export default function Dao() {
   }>({}); // 남은 시간 상태
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [titles, setTitles] = useState<{ [onchainId: string]: string }>({}); // 타이틀 상태 추가
+  const [delayMin, setDelayMin] = useState<number>(0);
+
+  useEffect(() => {
+    const data = async () => {
+      try {
+        const value = await fetchTimelockMinDelay();
+        setDelayMin(value);
+      } catch (error) {
+        console.error('delay min fetching error', error);
+      }
+    };
+    data();
+  }, []);
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -72,11 +78,11 @@ export default function Dao() {
         // 각 블록 범위에 대한 트랜잭션 호출을 병렬로 처리
         const promises = blockRanges.map(([startBlock, endBlock]) =>
           fetchTransactionsByBlockRange(
-            addressToCheck,
-            methodIdToCheck,
-            startBlock,
-            endBlock,
-            import.meta.env.VITE_ARBISCAN_API_KEYS1
+            L2_CORE_CORE_GOVERNOR_ADDRESS,
+            BigInt(startBlock),
+            BigInt(endBlock),
+            import.meta.env.VITE_ARBISCAN_API_KEYS1,
+            methodIdToCheck
           )
         );
 
@@ -126,33 +132,35 @@ export default function Dao() {
   useEffect(() => {
     const intervalId = setInterval(() => {
       // 매 초마다 남은 시간을 업데이트
-      const newTimeRemaining = transactions.reduce(
-        (acc, tx) => {
-          const originalTimestamp = parseInt(tx.timeStamp, 10) * 1000; // Unix timestamp (milliseconds)
-          const adjustedTimestamp = originalTimestamp + additionalValue * 1000; // 추가된 timestamp 계산 (milliseconds)
+      if (delayMin > 0) {
+        const newTimeRemaining = transactions.reduce(
+          (acc, tx) => {
+            const originalTimestamp = parseInt(tx.timeStamp, 10) * 1000; // Unix timestamp (milliseconds)
+            const adjustedTimestamp = originalTimestamp + delayMin * 1000; // 추가된 timestamp 계산 (milliseconds)
 
-          const now = Date.now();
-          const timeLeft = Math.max(0, adjustedTimestamp - now); // 남은 시간이 0보다 작은 경우 0으로 설정
+            const now = Date.now();
+            const timeLeft = Math.max(0, adjustedTimestamp - now); // 남은 시간이 0보다 작은 경우 0으로 설정
 
-          const hours = Math.floor(timeLeft / (1000 * 60 * 60));
-          const minutes = Math.floor(
-            (timeLeft % (1000 * 60 * 60)) / (1000 * 60)
-          );
-          const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+            const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+            const minutes = Math.floor(
+              (timeLeft % (1000 * 60 * 60)) / (1000 * 60)
+            );
+            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
 
-          acc[tx.hash] = { hours, minutes, seconds }; // 트랜잭션 해시를 키로 해서 남은 시간 저장
-          return acc;
-        },
-        {} as {
-          [hash: string]: { hours: number; minutes: number; seconds: number };
-        }
-      );
+            acc[tx.hash] = { hours, minutes, seconds }; // 트랜잭션 해시를 키로 해서 남은 시간 저장
+            return acc;
+          },
+          {} as {
+            [hash: string]: { hours: number; minutes: number; seconds: number };
+          }
+        );
 
-      setTimeRemainingState(newTimeRemaining);
+        setTimeRemainingState(newTimeRemaining);
+      }
     }, 1000); // 1초마다 갱신
 
     return () => clearInterval(intervalId); // 컴포넌트 언마운트 시 인터벌 정리
-  }, [transactions]);
+  }, [transactions, delayMin]);
 
   return (
     <BoxFrame title="DAO">
@@ -206,7 +214,7 @@ export default function Dao() {
                       }}
                     >
                       <Link
-                        href={createTallyLink(proposal.onchainId)}
+                        href={apiUrls.getTallyUrl(proposal.onchainId)}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
@@ -307,9 +315,10 @@ export default function Dao() {
               <TableBody>
                 {transactions.length > 0 ? (
                   transactions.map(tx => {
+                    console.log(delayMin);
                     const originalTimestamp = parseInt(tx.timeStamp, 10) * 1000; // Unix timestamp (milliseconds)
                     const adjustedTimestamp =
-                      originalTimestamp + additionalValue * 1000; // 추가된 timestamp 계산 (milliseconds)
+                      originalTimestamp + delayMin * 1000; // 추가된 timestamp 계산 (milliseconds)
                     const remainingTime = timeRemainingState[tx.hash];
 
                     const isTimeRemaining =
@@ -322,7 +331,7 @@ export default function Dao() {
                       <TableRow key={tx.hash}>
                         <TableCell align="center">
                           <Link
-                            href={createLink(tx.hash)}
+                            href={apiUrls.getArbiscanTxUrl(tx.hash)}
                             target="_blank"
                             rel="noopener noreferrer"
                           >

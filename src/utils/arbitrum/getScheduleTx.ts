@@ -1,4 +1,9 @@
 import axios from 'axios';
+import { Address } from 'viem';
+import { arbitrumPublicClient } from '../common/publicClient';
+import { L2_CORE_CORE_GOVERNOR_ADDRESS } from '../../constants/arbitrum/address';
+import { apiUrls } from '../../constants/common/url';
+import { timelock, getMinDelay } from '../../constants/arbitrum/abi';
 
 // 트랜잭션 타입 정의
 interface Transaction {
@@ -20,14 +25,14 @@ interface TransactionWithTimestamp {
   timeStamp: string;
 }
 
-export default async function fetchTransactionsByBlockRange(
+export async function fetchTransactionsByBlockRange(
   address: string,
-  methodId: string,
-  startBlock: number,
-  endBlock: number,
-  apiKey: string
+  startBlock: bigint,
+  endBlock: bigint,
+  apiKey: string,
+  methodId: string
 ): Promise<TransactionWithTimestamp[]> {
-  const url = `https://api.arbiscan.io/api?module=account&action=txlist&address=${address}&startblock=${startBlock}&endblock=${endBlock}&sort=desc&apikey=${apiKey}`;
+  const url = apiUrls.getArbiTxUrl(address, startBlock, endBlock, apiKey);
 
   try {
     const response = await axios.get(url);
@@ -50,4 +55,20 @@ export default async function fetchTransactionsByBlockRange(
     console.error('Error fetching transactions:', error);
     return [];
   }
+}
+
+export async function fetchTimelockMinDelay() {
+  const timelockAddress = await arbitrumPublicClient.readContract({
+    address: L2_CORE_CORE_GOVERNOR_ADDRESS,
+    abi: timelock,
+    functionName: 'timelock',
+  });
+
+  const delayMin = await arbitrumPublicClient.readContract({
+    address: timelockAddress as Address,
+    abi: getMinDelay,
+    functionName: 'getMinDelay',
+  });
+
+  return delayMin != null ? Number(delayMin) : 0;
 }
