@@ -1,8 +1,8 @@
 import axios from 'axios';
 import { apiUrls } from '../../constants/common/url';
 import { proposalQuery, titleQuery } from '../../constants/arbitrum/query';
+import { tallyGovernerId } from '../../constants/arbitrum/id';
 
-const GOVERNOR_ID = 'eip155:42161:0xf07DeD9dC292157749B6Fd268E37DF6EA38395B9'; // governorId 값
 const TALLY_API_KEY: string = import.meta.env.VITE_TALLY_API_KEY; // API 키
 
 // Proposal 타입 정의
@@ -21,7 +21,7 @@ export const getProposals = (): Promise<Proposal[]> => {
   const variables = {
     input: {
       filters: {
-        governorId: GOVERNOR_ID,
+        governorId: tallyGovernerId,
         includeArchived: false,
         isDraft: false,
       },
@@ -66,7 +66,7 @@ export const getProposalTitle = (onchainId: string): Promise<string | null> => {
   const variables = {
     input: {
       onchainId,
-      governorId: GOVERNOR_ID,
+      governorId: tallyGovernerId,
     },
   };
 

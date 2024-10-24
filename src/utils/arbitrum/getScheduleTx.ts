@@ -70,7 +70,5 @@ export async function fetchTimelockMinDelay() {
     functionName: 'getMinDelay',
   });
 
-  return Number(delayMin as bigint);
+  return delayMin != null ? Number(delayMin) : 0;
 }
-
-export default { fetchTransactionsByBlockRange, fetchTimelockMinDelay };
