@@ -29,7 +29,7 @@ import {
 } from '../../utils/arbitrum/getBlobGraph';
 import { L1_BATCH_SUBMITTER } from '../../constants/arbitrum/address';
 import SubtitleBox from '../common/SubtitleBox';
-import { getBalanceOnL1 } from '../../utils/getSecurityCouncil';
+import { getBalanceOnL1 } from '../../utils/arbitrum/getSecurityCouncil';
 
 // ETH 변환 함수
 const formatBalance = (balance: bigint) => Number(balance) / 10 ** 18; // .toFixed(4);

@@ -83,3 +83,35 @@ export const submitRetryable = [
     type: 'function',
   },
 ];
+
+export const timelock = [
+  {
+    inputs: [],
+    name: 'timelock',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+];
+
+export const getMinDelay = [
+  {
+    inputs: [],
+    name: 'getMinDelay',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'duration',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+];
